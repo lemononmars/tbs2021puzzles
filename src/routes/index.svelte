@@ -10,6 +10,7 @@
 	let solved = [false, false, false, false, false, false]
 	let answers = [' ',' ',' ',' ',' ',' ']
 	const iconurls = [0,1,2,3,4,5].map(x => `./puzzleicon${x+1}.png`)
+	let styles=['','','','','','']
 
 	const letterTable = [
 		['T','A','B','U','L'],
@@ -18,7 +19,6 @@
 		['H','N','N','C','R'],
 		['T','R','I','D','Y']
 	]
-
 	var letterStates = [
 		[0,0,0,0,0],
 		[0,0,0,0,0],
@@ -26,7 +26,6 @@
 		[0,0,0,0,0],
 		[0,0,0,0,0],
 	]
-
 	var stateColors = ['primiary', 'secondary']
 
 	onMount(async() => {
@@ -44,11 +43,13 @@
 		socket.emit('submit answer', submission, function(isCorrect){
 			console.log(isCorrect)
 			if(isCorrect) {
-				alert(`hurray! solved ${id}`) // popup?
 				answers[id] = answers[id].trim().toUpperCase()
 				$store[id] = answers[id].trim().toUpperCase()
-				console.log($store)
 				solved[id] = true
+			}
+			else{
+				styles[id] = "background-color:rgb(200,0,0,0.5)"
+				setInterval(()=>{styles[id]=''}, 1000)
 			}
 		})
 	}
@@ -68,16 +69,14 @@
 	}
 
 	function keyPressed(e){
-		// to be fixed .... can't find the id of the pressed box
-   	if (e.charCode === 13) 
-			submit();
+   	if (e.keyCode === 13)
+			submit(answers.indexOf(e.target.value));
   	};
 </script>
 
 <svelte:head>
 	<title>TBS2021 Puzzles</title>
 </svelte:head>
-
 
 <div id = 'main'>
 	<table>
@@ -101,10 +100,10 @@
 	{#each puzzleIDs as i}
 		<tr style="text-alignt: center; vertical-align: middle">
 			<td><img src={iconurls[i]} alt = 'puzzle icon'/></td>
-			<td><Textfield variant="outlined" bind:value={answers[i]} on:keydown={keyPressed} disabled={solved[i]}/></td>
+			<td><Textfield variant="outlined" bind:value={answers[i]} on:keydown={keyPressed} disabled={solved[i]} style={styles[i]}/></td>
 			<td>
 				{#if solved[i]}
-					<Button variant="outlined">
+					<Button variant="outlined" disabled>
 						<Label>Solved!</Label>
 					</Button>
 				{:else}
@@ -117,6 +116,7 @@
    {/each}
 	</table>
 </div>
+
 
 <style>
 	#main{

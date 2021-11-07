@@ -1,50 +1,129 @@
 <script>
-	import successkid from 'images/successkid.jpg';
+	import {store} from '../stores/save'
+	import {onMount} from 'svelte'
+	import Textfield from '@smui/textfield'
+	import Button, { Label } from '@smui/button';
+	import io from 'socket.io-client';
+	const socket = io()
+
+	const puzzleIDs = [0,1,2,3,4,5]
+	let solved = [false, false, false, false, false, false]
+	let answers = [' ',' ',' ',' ',' ',' ']
+	const iconurls = [0,1,2,3,4,5].map(x => `./puzzleicon${x+1}.png`)
+
+	const letterTable = [
+		['T','A','B','U','L'],
+		['D','W','S','E','K'],
+		['E','E','T','R','E'],
+		['H','N','N','C','R'],
+		['T','R','I','D','Y']
+	]
+
+	var letterStates = [
+		[0,0,0,0,0],
+		[0,0,0,0,0],
+		[0,0,0,0,0],
+		[0,0,0,0,0],
+		[0,0,0,0,0],
+	]
+
+	var stateColors = ['primiary', 'secondary']
+
+	onMount(async() => {
+		store.useLocalStorage() // uncomment when deployed
+		socket.emit('verify save', $store, function(s, a){
+			solved = s
+			answers = a
+		})
+
+		const res = await fetch(`./puzzleicon1.png`)
+	})
+
+	function submit(id){
+		var submission = {id:id, answer: answers[id]}
+		socket.emit('submit answer', submission, function(isCorrect){
+			console.log(isCorrect)
+			if(isCorrect) {
+				alert(`hurray! solved ${id}`) // popup?
+				answers[id] = answers[id].trim().toUpperCase()
+				$store[id] = answers[id].trim().toUpperCase()
+				console.log($store)
+				solved[id] = true
+			}
+		})
+	}
+
+	function flipState(i,j){
+		letterStates[i][j] = 1 - letterStates[i][j]
+	}
+
+	function clearMarks(){
+		letterStates = [
+			[0,0,0,0,0],
+			[0,0,0,0,0],
+			[0,0,0,0,0],
+			[0,0,0,0,0],
+			[0,0,0,0,0],
+		]
+	}
+
+	function keyPressed(e){
+		// to be fixed .... can't find the id of the pressed box
+   	if (e.charCode === 13) 
+			submit();
+  	};
 </script>
 
-<style>
-	h1, figure, p {
-		text-align: center;
-		margin: 0 auto;
-	}
-
-	h1 {
-		font-size: 2.8em;
-		text-transform: uppercase;
-		font-weight: 700;
-		margin: 0 0 0.5em 0;
-	}
-
-	figure {
-		margin: 0 0 1em 0;
-	}
-
-	img {
-		width: 100%;
-		max-width: 400px;
-		margin: 0 0 1em 0;
-	}
-
-	p {
-		margin: 1em auto;
-	}
-
-	@media (min-width: 480px) {
-		h1 {
-			font-size: 4em;
-		}
-	}
-</style>
-
 <svelte:head>
-	<title>Sapper project template</title>
+	<title>TBS2021 Puzzles</title>
 </svelte:head>
 
-<h1>Great success!</h1>
 
-<figure>
-	<img alt="Success Kid" src="{successkid}">
-	<figcaption>Have fun with Sapper!</figcaption>
-</figure>
+<div id = 'main'>
+	<table>
+	{#each letterTable as row, i}
+		<tr>
+		{#each row as l, j}
+		<td>
+			<Button value='true' style="font-size: 30px" on:click={()=>flipState(i,j)} color={stateColors[letterStates[i][j]]} variant="outlined">
+				<Label>{l}</Label>
+			</Button>
+		</td>
+		{/each}
+		</tr>
+	{/each}
+	</table>
+	<Button on:click={clearMarks} color='secondary'>
+		<Label>Clear marks</Label>
+	</Button>
 
-<p><strong>Try editing this file (src/routes/index.svelte) to test live reloading.</strong></p>
+	<table>
+	{#each puzzleIDs as i}
+		<tr style="text-alignt: center; vertical-align: middle">
+			<td><img src={iconurls[i]} alt = 'puzzle icon'/></td>
+			<td><Textfield variant="outlined" bind:value={answers[i]} on:keydown={keyPressed} disabled={solved[i]}/></td>
+			<td>
+				{#if solved[i]}
+					<Button variant="outlined">
+						<Label>Solved!</Label>
+					</Button>
+				{:else}
+					<Button on:click={() => submit(i)} variant="raised">
+						<Label>Submit</Label>
+					</Button>
+				{/if}
+			</td>
+		<tr>
+   {/each}
+	</table>
+</div>
+
+<style>
+	#main{
+		background-color: white;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		margin: auto;
+	}
+</style>

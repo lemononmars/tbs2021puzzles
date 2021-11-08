@@ -18,7 +18,6 @@ const app = polka({ server })
 		if (err) console.log('error', err);
 	});
 
-//export default app
 module.exports = app
 const io = socketIo(server, {
 	cors: {

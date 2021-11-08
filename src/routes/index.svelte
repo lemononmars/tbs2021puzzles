@@ -29,7 +29,7 @@
 	var stateColors = ['primiary', 'secondary']
 
 	onMount(async() => {
-		store.useLocalStorage() // uncomment when deployed
+		store.useLocalStorage()
 		socket.emit('verify save', $store, function(s, a){
 			solved = s
 			answers = a
@@ -40,9 +40,9 @@
 
 	function submit(id){
 		var submission = {id:id, answer: answers[id]}
-		socket.emit('submit answer', submission, function(isCorrect){
-			console.log(isCorrect)
-			if(isCorrect) {
+		socket.emit('submit answer', submission, function(res){
+			console.log(res.isCorrect)
+			if(res.isCorrect) {
 				answers[id] = answers[id].trim().toUpperCase()
 				$store[id] = answers[id].trim().toUpperCase()
 				solved[id] = true
@@ -51,6 +51,7 @@
 				styles[id] = "background-color:rgb(200,0,0,0.5)"
 				setInterval(()=>{styles[id]=''}, 1000)
 			}
+			// if(res.rank) > show congratulation message 
 		})
 	}
 

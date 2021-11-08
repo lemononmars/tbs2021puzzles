@@ -42,7 +42,6 @@ const client = new Client({
 
 client.connect(function(err){
 	if (err) throw err;
-	console.log("databased connected!");
 	//client.query(`DELETE FROM leaderboard1`) //debug
 });
 
@@ -56,7 +55,7 @@ io.on('connection', function(socket){
 			const d = new Date()
 			var timeString = d.toLocaleString('th-TH')
 			console.log(timeString)
-			var name = 'ANON' //data.name?
+			var name = 'Admin' //data.name?
 
 			if(data.id == 5){
 				client.query(`INSERT INTO leaderboard1 VALUES ('${name}', '${timeString}')`, function (err, result) {

@@ -7,6 +7,7 @@
 		border-bottom: 1px solid rgba(255,62,0,0.1);
 		font-weight: 300;
 		padding: 0 1em;
+		text-align:center;
 	}
 	ul {
 		margin: 0;
@@ -45,7 +46,7 @@
 <nav>
 	<ul>
 		<li><a aria-current="{segment === undefined ? 'page' : undefined}" href=".">Puzzles</a></li>
-		<li><a aria-current="{segment === 'about' ? 'page' : undefined}" href="about">about</a></li>
+		<li><a aria-current="{segment === 'about' ? 'page' : undefined}" href="about">วิธีเล่น</a></li>
       <li><a aria-current="{segment === 'leaderboard' ? 'page' : undefined}" href="leaderboard">leaderboard</a></li>
 	</ul>
 </nav>

@@ -41,13 +41,13 @@
 	function submit(id){
 		var submission = {id:id, answer: answers[id]}
 		socket.emit('submit answer', submission, function(res){
-			console.log(res.isCorrect)
 			if(res.isCorrect) {
 				answers[id] = answers[id].trim().toUpperCase()
 				$store[id] = answers[id].trim().toUpperCase()
 				solved[id] = true
 			}
 			else{
+				// error feedback. could improve
 				styles[id] = "background-color:rgb(200,0,0,0.5)"
 				setInterval(()=>{styles[id]=''}, 1000)
 			}

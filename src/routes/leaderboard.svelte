@@ -1,9 +1,9 @@
-<script>
+<script lang='ts'> 
    import {onMount} from 'svelte'
-   //import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
+   import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
    let table = []
-   import io from 'socket.io-client';
-	const socket = io()
+   import {io, Socket} from 'socket.io-client';
+	const socket: Socket = io()
 
    onMount(async() => {
       // retrieve leaderboard from database
@@ -17,43 +17,25 @@
 	<title>Leaderboard</title>
 </svelte:head>
 
-<h1>Leaderboard</h1>
 {#if table.length > 0}
-<table>
-   <tr>
-      <th>Rank</th>
-      <th>Name</th>
-      <th>Time</th>
-   </tr>
-   {#each table as row, i}
-   <tr>
-      <td>{i+1}</td>
-      <td>{row.name}</td>
-      <td>{row.time}</td>
-   </tr>
-   {/each}
-</table>
-{:else}
-   <h2>No one has finished yet. You could be first!</h2>
-{/if}
-
-<!--
-<DataTable table$aria-label="People list" style="max-width: 100%;">
+<DataTable table$aria-label="Leaderboard" style="max-width: 100%;">
    <Head>
      <Row>
-       <Cell>#</Cell>
-       <Cell>Name</Cell>
-       <Cell>Time</Cell>
+       <Cell>ลำดับ</Cell>
+       <Cell>ชื่อ</Cell>
+       <Cell>เวลา</Cell>
      </Row>
    </Head>
    <Body>
-      {#each table as row}
+      {#each table as row, i}
       <Row>
-         <Cell numeric>{row[0]}</Cell>
-         <Cell>{row[1]}</Cell>
-         <Cell>{row[2]}</Cell>
+         <Cell numeric>{i}</Cell>
+         <Cell>{row.name}</Cell>
+         <Cell>{row.time}</Cell>
       </Row>
       {/each}
    </Body>
  </DataTable>
- -->
+ {:else}
+   <h2>ยังไม่มีคนเสร็จเลย คุณอาจเป็นคนแรกก็ได้นะ!</h2>
+  {/if}

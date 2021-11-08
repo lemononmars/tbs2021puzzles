@@ -1,30 +1,29 @@
 import * as sapper from '@sapper/server';
 import compression from 'compression';
 import http from 'http';
-import polka from 'polka';
+import express from 'express'
 import sirv from 'sirv';
-import socketIo from 'socket.io';
+import {Server, Socket} from 'socket.io';
 
 const { PORT, NODE_ENV } = process.env;
 const dev = NODE_ENV === 'development';
 const server = http.createServer();
  
-const app = polka({ server })
+express()
 	.use(
 		compression({ threshold: 0 }),
 		sirv('static', { dev }),
 		sapper.middleware()
-	).listen(PORT, err => {
-		if (err) console.log('error', err);
+	).listen(PORT, () => {
 	});
 
-//export default app
-module.exports = app
-const io = socketIo(server, {
+// export default app
+//module.exports = app
+const io = new Server(server,{
 	cors: {
 		origin: PORT,
 		methods: ["GET", "POST"],
-		transports: ['websocket', 'polling'],
+		//transports: ['websocket', 'polling'],
 		credentials: true
 	},
 	allowEIO3: true
@@ -46,7 +45,7 @@ client.connect(function(err){
 	//client.query(`DELETE FROM leaderboard1`) //debug
 });
 
-io.on('connection', function(socket){
+io.on('connection', (socket: Socket) =>{
 	const solutions = ['READ','UNDER','LETTERS','USED','TWICE','ENTER'] //super secret
 
 	socket.on('submit answer', (data, verify) =>{
@@ -62,14 +61,14 @@ io.on('connection', function(socket){
 				client.query(`INSERT INTO leaderboard1 VALUES ('${name}', '${timeString}')`, function (err, result) {
 					if (err) throw err;
 					console.log("first round finished!");
-					res.rank = result.insertId + 1
+					res['rank'] = result.insertId + 1
 				})
 			}
 			if(data.id == 10){
 				client.query(`INSERT INTO leaderboard2 VALUES ('${name}', '${timeString}')`, function (err, result) {
 					if (err) throw err;
 					console.log("second round finished!");
-					res.rank = result.insertId + 1
+					res['rank'] = result.insertId + 1
 				})
 			}
 		}	

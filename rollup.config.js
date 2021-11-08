@@ -8,22 +8,24 @@ import babel from '@rollup/plugin-babel';
 import { terser } from 'rollup-plugin-terser';
 import config from 'sapper/config/rollup.js';
 import pkg from './package.json';
-//import sveltePreprocess from 'svelte-preprocess';
-//import typescript from '@rollup/plugin-typescript';
+import sveltePreprocess from 'svelte-preprocess';
+import typescript from '@rollup/plugin-typescript';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
 
 const mode = process.env.NODE_ENV;
 const dev = mode === 'development';
 const legacy = !!process.env.SAPPER_LEGACY_BUILD;
-//const production = !process.env.ROLLUP_WATCH
+const production = !process.env.ROLLUP_WATCH
 
 const onwarn = (warning, onwarn) =>
 	(warning.code === 'MISSING_EXPORT' && /'preload'/.test(warning.message)) ||
 	(warning.code === 'CIRCULAR_DEPENDENCY' && /[/\\]@sapper[/\\]/.test(warning.message)) ||
+	(warning.code === 'THIS_IS_UNDEFINED') ||
 	onwarn(warning);
 
 export default {
 	client: {
-		input: config.client.input(),
+		input: config.client.input().replace(/\.js$/, '.ts'),
 		output: config.client.output(),
 		plugins: [
 			//typescript({ sourceMap: !production }),
@@ -35,12 +37,13 @@ export default {
 				},
 			}),
 			svelte({
-				/*preprocess: sveltePreprocess({
+				preprocess: sveltePreprocess({
 					sourceMap: !production,
 					postcss: {
 						plugins: [require('autoprefixer')()]
 					}
-				}),*/
+				}),
+				preprocess: sveltePreprocess({ sourceMap: dev }),
 				compilerOptions: {
 					dev,
 					hydratable: true
@@ -50,10 +53,13 @@ export default {
 				sourceDir: path.resolve(__dirname, 'src/node_modules/images'),
 				publicPath: '/client/'
 			}),
+			nodePolyfills(),
 			resolve({
 				browser: true,
+				preferBuiltins: false,
 				dedupe: ['svelte']
 			}),
+			typescript({ sourceMap: dev }),
 			commonjs(),
 
 			legacy && babel({
@@ -75,7 +81,7 @@ export default {
 
 			!dev && terser({
 				module: true
-			})
+			}),
 		],
 
 		preserveEntrySignatures: false,
@@ -83,7 +89,7 @@ export default {
 	},
 
 	server: {
-		input: config.server.input(),
+		input: { server: config.server.input().server.replace(/\.js$/, ".ts") },
 		output: config.server.output(),
 		plugins: [
 			replace({
@@ -94,6 +100,13 @@ export default {
 				},
 			}),
 			svelte({
+				preprocess: sveltePreprocess({
+					sourceMap: !production,
+					postcss: {
+						plugins: [require('autoprefixer')()]
+					}
+				}),
+				preprocess: sveltePreprocess({ sourceMap: dev }),
 				compilerOptions: {
 					dev,
 					generate: 'ssr',
@@ -106,18 +119,21 @@ export default {
 				publicPath: '/client/',
 				emitFiles: false // already emitted by client build
 			}),
+			nodePolyfills(),
 			resolve({
+				preferBuiltins: false,
 				dedupe: ['svelte']
 			}),
-			commonjs()
+			commonjs(),
+			typescript({ sourceMap: dev }),
 		],
 		external: Object.keys(pkg.dependencies).concat(require('module').builtinModules),
 		preserveEntrySignatures: 'strict',
 		onwarn,
 	},
 
-	serviceworker: { //!dev && { to remove it}
-		input: config.serviceworker.input(),
+	serviceworker: {
+		input: config.serviceworker.input().replace(/\.js$/, '.ts'),
 		output: config.serviceworker.output(),
 		plugins: [
 			resolve(),
@@ -129,6 +145,7 @@ export default {
 				},
 			}),
 			commonjs(),
+			typescript({ sourceMap: dev }),
 			!dev && terser()
 		],
 		preserveEntrySignatures: false,

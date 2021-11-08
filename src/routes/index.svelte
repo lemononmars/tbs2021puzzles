@@ -1,9 +1,10 @@
 <script>
+	var exports = {}
 	import {store} from '../stores/save'
 	import {onMount} from 'svelte'
 	import Textfield from '@smui/textfield'
 	import Button, { Label } from '@smui/button';
-	import io from 'socket.io-client';
+	import {io} from 'socket.io-client';
 	const socket = io()
 
 	const puzzleIDs = [0,1,2,3,4,5]

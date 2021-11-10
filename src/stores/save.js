@@ -1,5 +1,9 @@
 import { persistStore } from './persistStore'
 
-const answers = ['','','','','','']
+const info = {
+   user: '',
+   email: 'anon@gmail.com',
+   answers: ['','','','','','']
+}
 
-export const store = persistStore('saveTBS2021Puzzles', answers)
+export const store = persistStore('saveTBS2021Puzzles', info)

@@ -41,33 +41,34 @@ const client = new Client({
 
 client.connect(function(err){
 	if (err) throw err;
-	//client.query(`DELETE FROM leaderboard1`) //debug
+	//client.query(`DELETE FROM leaderboard1`) //clear
+	//client.query(`DELETE FROM leaderboard2`) //debug
 });
 
 io.on('connection', function(socket){
 	const solutions = ['READ','UNDER','LETTERS','USED','TWICE','ENTER'] //super secret
 
 	socket.on('submit answer', (data, verify) =>{
-		const isCorrect = solutions[data.id] === data.answer.trim().toUpperCase()
-		var res = {isCorrect: isCorrect}
+		const cleanAnswer = data.answer.trim().toUpperCase()
+		const isCorrect = solutions[data.id] === cleanAnswer 
+		const column = isCorrect? 'correct':'incorrect'
+		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${data.id}`)
+		
+		var res = {isCorrect: isCorrect, rank: -1}
 		if (isCorrect && data.id == 5 || data.id == 10){
 			const d = new Date()
 			var timeString = d.toLocaleString('th-TH')
-			console.log(timeString)
-			var name = 'Admin' //data.name?
 
 			if(data.id == 5){
-				client.query(`INSERT INTO leaderboard1 VALUES ('${name}', '${timeString}')`, function (err, result) {
+				client.query(`INSERT INTO leaderboard1 VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err, result) {
 					if (err) throw err;
-					console.log("first round finished!");
-					res.rank = result.insertId + 1
+					res[rank] = result.insertId + 1
 				})
 			}
 			if(data.id == 10){
-				client.query(`INSERT INTO leaderboard2 VALUES ('${name}', '${timeString}')`, function (err, result) {
+				client.query(`INSERT INTO leaderboard2 VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err, result) {
 					if (err) throw err;
-					console.log("second round finished!");
-					res.rank = result.insertId + 1
+					res[rank] = result.insertId + 1
 				})
 			}
 		}	
@@ -81,7 +82,7 @@ io.on('connection', function(socket){
 	})
 
 	socket.on('get leaderboard', (data, callback)=>{
-		client.query(`SELECT * FROM leaderboard${data}`, (err, result) => {
+		client.query(`SELECT name, time FROM leaderboard${data}`, (err, result) => {
 			if(err) throw err
 			callback(result.rows)
 		 })

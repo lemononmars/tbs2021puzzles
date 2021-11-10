@@ -8,10 +8,13 @@ import babel from '@rollup/plugin-babel';
 import { terser } from 'rollup-plugin-terser';
 import config from 'sapper/config/rollup.js';
 import pkg from './package.json';
+import sveltePreprocess from 'svelte-preprocess';
+//import typescript from '@rollup/plugin-typescript';
 
 const mode = process.env.NODE_ENV;
 const dev = mode === 'development';
 const legacy = !!process.env.SAPPER_LEGACY_BUILD;
+const production = !process.env.ROLLUP_WATCH
 
 const onwarn = (warning, onwarn) =>
 	(warning.code === 'MISSING_EXPORT' && /'preload'/.test(warning.message)) ||
@@ -23,6 +26,7 @@ export default {
 		input: config.client.input(),
 		output: config.client.output(),
 		plugins: [
+			//typescript({ sourceMap: !production }),
 			replace({
 				preventAssignment: true,
 				values:{
@@ -31,6 +35,7 @@ export default {
 				},
 			}),
 			svelte({
+				preprocess: sveltePreprocess({sourceMap: !production}),
 				compilerOptions: {
 					dev,
 					hydratable: true
@@ -76,6 +81,7 @@ export default {
 		input: config.server.input(),
 		output: config.server.output(),
 		plugins: [
+			//typescript({ sourceMap: !production }),
 			replace({
 				preventAssignment: true,
 				values:{
@@ -84,6 +90,7 @@ export default {
 				},
 			}),
 			svelte({
+				preprocess: sveltePreprocess({sourceMap: !production}),
 				compilerOptions: {
 					dev,
 					generate: 'ssr',

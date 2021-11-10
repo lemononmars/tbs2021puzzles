@@ -1,5 +1,7 @@
-<script lang='ts'>
+<script>
    import {onMount} from 'svelte'
+   import CircularProgress from '@smui/circular-progress';
+   import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
    let table = []
    import io from 'socket.io-client';
    var loaded = false;
@@ -17,39 +19,33 @@
 	<title>Leaderboard</title>
 </svelte:head>
 
-<h1>แท่นผู้ชนะ</h1>
+<h1>ตารางอันดับ</h1>
 
 {#if loaded}
    {#if table.length > 0}
-   <table style="width:100%">
-      <tr>
-         <th>ลำดับ</th>
-         <th>ชื่อ</th>
-         <th>เวลา</th>
-      </tr>
+   <DataTable table$aria-label="People list" style="max-width: 100%;">
+      <Head>
+         <Row>
+            <Cell>ลำดับ</Cell>
+            <Cell>ชื่อ</Cell>
+            <Cell>เวลา</Cell>
+         </Row>
+      </Head>
+      <Body>
       {#each table as row, i}
-      <tr>
-         <td>{i+1}</td>
-         <td>{row.name}</td>
-         <td>{row.time}</td>
-      </tr>
+      <Row>
+         <Cell>{i+1}</Cell>
+         <Cell>{row.name}</Cell>
+         <Cell>{row.time}</Cell>
+      </Row>
       {/each}
-   </table>
+      </Body>
+   </DataTable>
    {:else}
       <h2>ยังไม่มีใครไขได้ครบ... คุณอาจเป็นคนแรกก็ได้นะ</h2>
    {/if}
 {:else}
-   Loading...
+   <div style="display: flex; justify-content: center">
+      <CircularProgress style="height: 32px; width: 32px;" indeterminate />
+   </div>
 {/if}
-
-<style>
-   h1{
-      text-align:center;
-   }
-   th{
-      text-align:center;
-   }
-   td{
-      text-align:center;
-   }
-</style>

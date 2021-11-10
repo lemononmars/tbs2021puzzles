@@ -3,128 +3,59 @@
 	import {onMount} from 'svelte'
 	import Textfield from '@smui/textfield'
 	import Button, { Label } from '@smui/button';
-	import io from 'socket.io-client';
-	const socket = io()
 
-	const puzzleIDs = [0,1,2,3,4,5]
-	let solved = [false, false, false, false, false, false]
-	let answers = [' ',' ',' ',' ',' ',' ']
-	const iconurls = [0,1,2,3,4,5].map(x => `./puzzleicon${x+1}.png`)
-	let styles=['','','','','','']
-
-	const letterTable = [
-		['T','A','B','U','L'],
-		['D','W','S','E','K'],
-		['E','E','T','R','E'],
-		['H','N','N','C','R'],
-		['T','R','I','D','Y']
-	]
-	var letterStates = [
-		[0,0,0,0,0],
-		[0,0,0,0,0],
-		[0,0,0,0,0],
-		[0,0,0,0,0],
-		[0,0,0,0,0],
-	]
-	var stateColors = ['primiary', 'secondary']
+	let isRegistered = false;
+	let user = ''
+	let email = ''
 
 	onMount(async() => {
 		store.useLocalStorage()
-		socket.emit('verify save', $store, function(s, a){
-			solved = s
-			answers = a
-		})
-
-		const res = await fetch(`./puzzleicon1.png`)
+		if($store.user === '') 
+			return;
+			
+		email = $store.email
+		user = $store.user
+		isRegistered = true
 	})
 
-	function submit(id){
-		var submission = {id:id, answer: answers[id]}
-		socket.emit('submit answer', submission, function(res){
-			if(res.isCorrect) {
-				answers[id] = answers[id].trim().toUpperCase()
-				$store[id] = answers[id].trim().toUpperCase()
-				solved[id] = true
-			}
-			else{
-				// error feedback. could improve
-				styles[id] = "background-color:rgb(200,0,0,0.5)"
-				setInterval(()=>{styles[id]=''}, 1000)
-			}
-			// if(res.rank) > show congratulation message 
-		})
+	function submit(){
+		$store.email = email
+		$store.user = user
+		isRegistered = true
 	}
-
-	function flipState(i,j){
-		letterStates[i][j] = 1 - letterStates[i][j]
-	}
-
-	function clearMarks(){
-		letterStates = [
-			[0,0,0,0,0],
-			[0,0,0,0,0],
-			[0,0,0,0,0],
-			[0,0,0,0,0],
-			[0,0,0,0,0],
-		]
-	}
-
-	function keyPressed(e){
-   	if (e.keyCode === 13)
-			submit(answers.indexOf(e.target.value));
-  	};
 </script>
 
 <svelte:head>
-	<title>TBS2021 Puzzles</title>
+	<title>About</title>
 </svelte:head>
 
-<div id = 'main'>
-	<table>
-	{#each letterTable as row, i}
-		<tr>
-		{#each row as l, j}
-		<td>
-			<Button value='true' style="font-size: 30px" on:click={()=>flipState(i,j)} color={stateColors[letterStates[i][j]]} variant="outlined">
-				<Label>{l}</Label>
-			</Button>
-		</td>
-		{/each}
-		</tr>
-	{/each}
-	</table>
-	<Button on:click={clearMarks} color='secondary'>
-		<Label>Clear marks</Label>
+{#if !isRegistered}
+<div style='text-align:center'>
+<img src="./favicon.png/" alt="Thailand Board Game Show logo"/><br/>
+<Textfield variant="outlined" label="e-mail (ที่ใช้สมัครงาน TBS2021)" bind:value={email}/><br/>
+<Textfield variant="outlined" label="ชื่อ (สำหรับขึ้นในตารางอันดับ)" bind:value={user}/><br/>
+<Button variant="outlined" on:click={submit}>
+	<Label>Save</Label>
+</Button>
+</div>
+{:else}
+<div style = 'text-align:center'> 
+	<h2>สวัสดี {$store.user} </h2>
+	<Button variant="outlined" on:click={() => isRegistered = false}>
+		<Label>แก้ใขข้อมูล</Label>
 	</Button>
-
-	<table>
-	{#each puzzleIDs as i}
-		<tr style="text-alignt: center; vertical-align: middle">
-			<td><img src={iconurls[i]} alt = 'puzzle icon'/></td>
-			<td><Textfield variant="outlined" bind:value={answers[i]} on:keydown={keyPressed} disabled={solved[i]} style={styles[i]}/></td>
-			<td>
-				{#if solved[i]}
-					<Button variant="outlined" disabled>
-						<Label>Solved!</Label>
-					</Button>
-				{:else}
-					<Button on:click={() => submit(i)} variant="raised">
-						<Label>Submit</Label>
-					</Button>
-				{/if}
-			</td>
-		<tr>
-   {/each}
-	</table>
 </div>
 
 
-<style>
-	#main{
-		background-color: white;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		margin: auto;
-	}
-</style>
+
+<h1>วิธีเล่น</h1>
+
+<p>หาคำใบ้ในแผนที่ gather.town ในงาน Thailand Board Game Show 2021 และนำคำตอบมาใส่ในส่วน Puzzles (แถบด้านบน)</p>
+
+<h1>กติกา</h1>
+<ol>
+	<li>คำตอบเป็นภาษาอังกฤษ (A-Z) โดยจะพิมพ์ตอบด้วยตัวใหญ่หรือเล็กก็ได้</li>
+	<li>ใช้ข้อมูลจาก gather.town และจากตารางตัวอักษร 5x5 เท่านั้น</li> 
+	<li>ไม่ต้อง Google หาข้อมูล ใช้ความรู้ทั่วไปพอ</li>
+</ol>
+{/if}

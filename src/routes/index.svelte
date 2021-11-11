@@ -1,61 +1,28 @@
 <script>
-	import {store} from '../stores/save'
-	import {onMount} from 'svelte'
-	import Textfield from '@smui/textfield'
-	import Button, { Label } from '@smui/button';
-
-	let isRegistered = false;
-	let user = ''
-	let email = ''
-
-	onMount(async() => {
-		store.useLocalStorage()
-		if($store.user === '') 
-			return;
-			
-		email = $store.email
-		user = $store.user
-		isRegistered = true
-	})
-
-	function submit(){
-		$store.email = email
-		$store.user = user
-		isRegistered = true
-	}
 </script>
 
 <svelte:head>
 	<title>About</title>
 </svelte:head>
 
-{#if !isRegistered}
 <div style='text-align:center'>
+<h1>ยินดีต้อนรับเข้าสู่ด่านที่ 1 ของเกมปริศนา <br> Thailand Board Game Show 2021</h1>
 <img src="./favicon.png/" alt="Thailand Board Game Show logo"/><br/>
-<Textfield variant="outlined" label="e-mail (ที่ใช้สมัครงาน TBS2021)" bind:value={email}/><br/>
-<Textfield variant="outlined" label="ชื่อ (สำหรับขึ้นในตารางอันดับ)" bind:value={user}/><br/>
-<Button variant="outlined" on:click={submit}>
-	<Label>Save</Label>
-</Button>
 </div>
-{:else}
-<div style = 'text-align:center'> 
-	<h2>สวัสดี {$store.user} </h2>
-	<Button variant="outlined" on:click={() => isRegistered = false}>
-		<Label>แก้ใขข้อมูล</Label>
-	</Button>
-</div>
-
-
 
 <h1>วิธีเล่น</h1>
 
-<p>หาคำใบ้ในแผนที่ gather.town ในงาน Thailand Board Game Show 2021 และนำคำตอบมาใส่ในส่วน Puzzles (แถบด้านบน)</p>
+<ol>
+	<li>หาคำใบ้ในแผนที่ gather.town ในงาน Thailand Board Game Show 2021</li>
+	<li>นำคำตอบมาใส่ในแถบ "ส่งคำตอบ" (ด้านบน)</li>
+	<li>นำคำตอบข้อ 1-5 มาอ่านเรียงกัน เพื่อแก้ปริศนาข้อสุดท้าย</li>
+	<li>นำคำตอบของปริศนาข้อสุดท้าย ใส่เป็นรหัสผ่านประตูเพื่อไปด่านถัดไป</li>
+</ol>
 
-<h1>กติกา</h1>
+<h1>วิธีตอบ</h1>
 <ol>
 	<li>คำตอบเป็นภาษาอังกฤษ (A-Z) โดยจะพิมพ์ตอบด้วยตัวใหญ่หรือเล็กก็ได้</li>
-	<li>ใช้ข้อมูลจาก gather.town และจากตารางตัวอักษร 5x5 เท่านั้น</li> 
-	<li>ไม่ต้อง Google หาข้อมูล ใช้ความรู้ทั่วไปพอ</li>
+	<li>ใช้ข้อมูลจาก gather.town และจากตารางตัวอักษร 5x5 เท่านั้น ไม่ต้อง Google หาข้อมูล</li> 
+	<li>ในแต่ละข้อ ถ้าแก้ปริศนาถูก จะได้ตำแหน่งในตาราง 5 ช่อง เป็นตัวอักษร 5 ตัว</li>
+	<li>อ่านตัวอักษรบนลงล่าง หรือซ้ายไปขวา อย่างใดอย่างหนึ่ง จะได้คำตอบ</li>
 </ol>
-{/if}

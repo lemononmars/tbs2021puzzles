@@ -1,4 +1,5 @@
 <script>
+  export let segment
 	import Tab, {Label} from '@smui/tab';
    import TabBar from '@smui/tab-bar';
  
@@ -12,8 +13,8 @@
       label: 'ปริศนา',
 	 },
 	 {
-      href: '/hints',
-      label: 'คำใบ้',
+      href: '/submit',
+      label: 'ส่งคำตอบ',
 	 },
 	 {
       href: '/leaderboard',
@@ -28,7 +29,7 @@
 </script>
 
 <TabBar {tabs} let:tab bind:active>
-	  <Tab {tab} href={tab.href} minWidth>
-		 <Label>{tab.label}</Label>
-	  </Tab>
+  <Tab {tab} href={tab.href} minWidth>
+    <Label>{tab.label}</Label>
+  </Tab>
 </TabBar>

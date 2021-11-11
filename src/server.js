@@ -41,41 +41,51 @@ const client = new Client({
 
 client.connect(function(err){
 	if (err) throw err;
-	//client.query(`DELETE FROM leaderboard1`) //clear
-	//client.query(`DELETE FROM leaderboard2`) //debug
+	//add command to be execute once
+	//deleteTables()
+	//createTables()
+	//clearTables()
+	//showSubmissionLog()
 });
 
 io.on('connection', function(socket){
-	const solutions = ['READ','UNDER','LETTERS','USED','TWICE','ENTER'] //super secret
+	const solutions = ['READS','UNDER','CELLS','TAKEN','TWICE','ENTER'] //super secret
 
 	socket.on('submit answer', (data, verify) =>{
 		const cleanAnswer = data.answer.trim().toUpperCase()
 		const isCorrect = solutions[data.id] === cleanAnswer 
 		const column = isCorrect? 'correct':'incorrect'
-		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${data.id}`)
+		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${data.id}`, (err)=>{
+			if(err) throw err
+		})
 		
-		var res = {isCorrect: isCorrect, rank: -1}
+		var returnResult = {
+			isCorrect: isCorrect, 
+			isFinished: false
+		}
 		if (isCorrect && data.id == 5 || data.id == 10){
-			const d = new Date()
-			var timeString = d.toLocaleString('th-TH')
-
-			if(data.id == 5){
-				client.query(`INSERT INTO leaderboard1 VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err, result) {
-					if (err) throw err;
-					res[rank] = result.insertId + 1
-				})
-			}
-			if(data.id == 10){
-				client.query(`INSERT INTO leaderboard2 VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err, result) {
-					if (err) throw err;
-					res[rank] = result.insertId + 1
-				})
-			}
+			returnResult.isFinished = true
 		}	
-		verify(res)
+		verify(returnResult)
+	})
+
+	socket.on('submit final answer', (data, callback) =>{
+		if(data.answer != solutions[5]) {
+			callback(false)
+			return;
+		}
+
+		const d = new Date()
+		var timeString = d.toLocaleString('th-TH')
+		client.query(`INSERT INTO leaderboard1 VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err) {
+			if (err) throw err;
+		})
+		callback(true)
 	})
 
 	socket.on('verify save', (data, verify) =>{
+		if(!data) return
+
 		const s = data.map((ans,i) => ans === solutions[i])
 		const a = data.map((ans,i) => ans === solutions[i]? solutions[i]:'')
 		verify(s, a)
@@ -88,3 +98,30 @@ io.on('connection', function(socket){
 		 })
 	})
 })
+
+function clearTables(){
+	client.query(`DELETE FROM leaderboard1`)
+	client.query(`DELETE FROM leaderboard2`)
+	client.query(`DELETE FROM answerlog`)
+}
+
+function deleteTables(){
+	client.query(`DROP TABLE leaderboard1`)
+	client.query(`DROP TABLE leaderboard2`)
+	client.query(`DROP TABLE answerlog`)
+}
+
+function createTables(){
+	//client.query(`CREATE TABLE leaderboard1 (name VARCHAR, email VARCHAR, time VARCHAR)`)
+	//client.query(`CREATE TABLE leaderboard2 (name VARCHAR, email VARCHAR, time VARCHAR)`)
+	client.query(`CREATE TABLE answerlog (id NUMERIC, correct NUMERIC, incorrect NUMERIC)`)
+	for(var i = 0; i < 6; i ++)
+		client.query(`INSERT INTO answerlog VALUES ('${i}', '0','0')`)
+}
+
+function showSubmissionLog(){
+	client.query(`SELECT * FROM answerlog`, (err, result) =>{
+		if(err) throw err;
+		console.log(JSON.stringify(result.rows))
+	})
+}

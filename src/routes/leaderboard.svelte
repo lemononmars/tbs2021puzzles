@@ -23,12 +23,24 @@
 
 {#if loaded}
    {#if table.length > 0}
-   <DataTable table$aria-label="People list" style="max-width: 100%;">
+   <DataTable table$aria-label="leaderboard" style="max-width: 100%;">
       <Head>
          <Row>
-            <Cell>ลำดับ</Cell>
-            <Cell>ชื่อ</Cell>
-            <Cell>เวลา</Cell>
+            <Cell>
+               <span style="display: flex; align-items: center;">
+                  <i class="material-icons" aria-hidden="true">emoji_events</i>อันดับ
+               </span>
+            </Cell>
+            <Cell>
+               <span style="display: flex; align-items: center;">
+                  <i class="material-icons" aria-hidden="true">person</i>ชื่อ
+               </span>
+            </Cell>
+            <Cell>
+               <span style="display: flex; align-items: center;">
+                  <i class="material-icons" aria-hidden="true">schedule</i>เวลาที่ส่งคำตอบสุดท้าย
+               </span>
+            </Cell>
          </Row>
       </Head>
       <Body>

@@ -58,7 +58,8 @@
 				snackbarWithClose.open()
 			}
 			else {
-				// asked to resubmitt?
+				snackbarLabel = 'คำตอบไม่ถูกต้อง ลองตอบใหม่'
+				snackbarWithClose.open()
 			}
 		})
 	}

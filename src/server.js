@@ -51,8 +51,7 @@ client.connect(function(err){
 io.on('connection', function(socket){
 	const solution = [ //super secret
 		['READS','UNDER','CELLS','TAKEN','TWICE','ENTER'],
-		['NEXTTURN', 'ROLL', 'DRAW', 'PICK'],
-		['JUDY', 'MACHIKORO']
+		['NEXTTURN', 'ROLL', 'DRAW', 'PICK', 'MACHIKORO']
 	]
 
 	socket.on('submit answer', (data, verify) =>{
@@ -74,14 +73,15 @@ io.on('connection', function(socket){
 	})
 
 	socket.on('add to leaderboard', (data, callback) =>{
-		if(round == 0 && data.answer != solution[0][5] || round == 2 && data.answer != solution[2][0]) {
+		if(round == 0 && data.answer != solution[0][5] || round == 1 && data.answer != solution[1][4]) {
 			callback(false)
 			return;
 		}
 
+		data.email = 'none@gmail.com'
 		const d = new Date()
 		var timeString = d.toLocaleString('th-TH')
-		client.query(`INSERT INTO leaderboard${data.round} VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err) {
+		client.query(`INSERT INTO leaderboard${data.round+1} VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err) {
 			if (err) throw err;
 		})
 		callback(true)
@@ -125,6 +125,10 @@ function createTables(){
 function showSubmissionLog(){
 	client.query(`SELECT * FROM answerlog`, (err, result) =>{
 		if(err) throw err;
-		console.log(JSON.stringify(result.rows))
+		fs.writeFile("answerlog.txt", JSON.stringify(result.rows), function(err) {
+			if (err) {
+				 console.log(err);
+			}
+	  	});
 	})
 }

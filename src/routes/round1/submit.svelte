@@ -16,7 +16,7 @@
 	const puzzleIDs = [0,1,2,3,4,5]
 	let solved = [false, false, false, false, false, false]
 	let answers = [' ',' ',' ',' ',' ',' ']
-	const iconurls = [0,1,2,3,4,5].map(x => `./round1/puzzleicon${x+1}.png`)
+	const iconurls = puzzleIDs.map(x => `./round1/puzzleicon${x+1}.png`)
 
 	onMount(async() => {
 		store.useLocalStorage()
@@ -34,7 +34,7 @@
 		socket.emit('submit answer', submission, function(res){
 			if(res.isCorrect) {
 				answers[id] = answers[id].trim().toUpperCase()
-				$store.round1answers[id] = answers[id].trim().toUpperCase()
+				$store.round1answers[id] = answers[id]
 				solved[id] = true
 				snackbarLabel = 'ถูกต้อง!'
 				if(res.isFinished){

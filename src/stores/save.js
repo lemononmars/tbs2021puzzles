@@ -1,9 +1,9 @@
 import { persistStore } from './persistStore'
 
 const info = {
-   user: '',
-   email: 'anon@gmail.com',
-   answers: ['','','','','','']
+   round1answers: ['','','','','',''],
+   round2answers: ['','','',''],
+   finalanswer: ['']
 }
 
 export const store = persistStore('saveTBS2021Puzzles', info)

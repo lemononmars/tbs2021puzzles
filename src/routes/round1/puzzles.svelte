@@ -1,14 +1,14 @@
 <script lang="ts">
 	import Card, {Content, Actions,} from '@smui/card';
-	import ClueTable from '../components/ClueTable.svelte';
+	import ClueTable from '../../components/ClueTable.svelte';
 	import Select, { Option } from '@smui/select';
 	import Button, { Label } from '@smui/button';
 
-	let activePuzzle = -1
+	let activePuzzle = 0
 	let activeSection = 0
-	const iconurls = [0,1,2,3,4,5].map(x => `./puzzleicon${x+1}.png`)
+	const iconurls = [0,1,2,3,4,5].map(x => `./round1/puzzleicon${x+1}.png`)
 
-	const sectionTitles = ['วิธีหาข้อมูล', 'วิธีแก้ปริศนา', 'วิธีอ่านคำตอบ']
+	const sectionTitles = ['วิธีหาเบาะแส', 'วิธีแก้ปริศนา', 'วิธีอ่านคำตอบ']
 
 	var puzzleTitles = [0,1,2,3,4].map(x => `ปริศนาข้อที่ ${x+1}`)
 	puzzleTitles = [... puzzleTitles, `ปริศนาข้อสุดท้าย`]
@@ -46,27 +46,23 @@
 	]
 </script>
 
-<svelte:head>
-	<title>ปริศนา</title>
-</svelte:head>
-
 <div id = 'main'>
 	<ClueTable/>
 
 	<Select variant="outlined" bind:value={activePuzzle} on:SMUI:action={()=>(activeSection = 0)}>
-		<Option value="-1">เลือกปริศนา</Option>
-		{#each [0,1,2,3,4,5] as id}
+		<Option value="0">เลือกปริศนา</Option>
+		{#each [1,2,3,4,5,6] as id}
 			<Option value={id}> 
-				<img src={iconurls[id]} alt='puzzle icon'/> {puzzleTitles[id]}
+				<img src={iconurls[id-1]} alt='puzzle icon'/> {puzzleTitles[id-1]}
 			</Option>
 		{/each}
 	</Select>
- {#if activePuzzle >= 0}
+ {#if activePuzzle > 0}
  	<div class="card-display" style='width:100%'>
 		<div class="card-container">
 			<Card>
 				<Content>
-					<span><img src={iconurls[activePuzzle]} alt='puzzle icon'/> {puzzleTitles[activePuzzle]}</span>
+					<span><img src={iconurls[activePuzzle-1]} alt='puzzle icon'/> {puzzleTitles[activePuzzle-1]}</span>
 				</Content>
 				{#each sectionTitles as title, i}
 					{#if activeSection >= i}
@@ -78,7 +74,7 @@
 					</Actions>
 					{/if}
 					{#if activeSection > i}
-					<Content>{@html puzzles[activePuzzle][i]}</Content>
+					<Content>{@html puzzles[activePuzzle-1][i]}</Content>
 					{/if}
 				{/each}
 			</Card>

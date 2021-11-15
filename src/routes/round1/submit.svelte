@@ -1,7 +1,7 @@
 <script lang=ts>
-	import {store} from '../stores/save'
+	import {store} from '../../stores/save'
 	import {onMount} from 'svelte'
-	import ClueTable from '../components/ClueTable.svelte';
+	import ClueTable from '../../components/ClueTable.svelte';
 	import Textfield from '@smui/textfield'
 	import Button, { Label } from '@smui/button';
 	import IconButton from '@smui/icon-button';
@@ -16,25 +16,25 @@
 	const puzzleIDs = [0,1,2,3,4,5]
 	let solved = [false, false, false, false, false, false]
 	let answers = [' ',' ',' ',' ',' ',' ']
-	const iconurls = [0,1,2,3,4,5].map(x => `./puzzleicon${x+1}.png`)
+	const iconurls = [0,1,2,3,4,5].map(x => `./round1/puzzleicon${x+1}.png`)
 
 	onMount(async() => {
 		store.useLocalStorage()
-		socket.emit('verify save', $store.answers, function(s, a){
+		const submission = {round:0, answers: $store.round1answers}
+		socket.emit('verify save', submission, function(s: boolean[], a: string[]){
 			solved = s
 			answers = a
 		})
 
-		const res = await fetch(`./puzzleicon1.png`) //there should be a better way....
+		const res = await fetch(`./round1/puzzleicon1.png`) //there should be a better way....
 	})
 
 	function submit(id: number){
-		var submission = {id:id, answer: answers[id], user: $store.user, email: $store.email}
+		var submission = {round: 0, id:id, answer: answers[id]}
 		socket.emit('submit answer', submission, function(res){
-			console.log(res)
 			if(res.isCorrect) {
 				answers[id] = answers[id].trim().toUpperCase()
-				$store.answers[id] = answers[id].trim().toUpperCase()
+				$store.round1answers[id] = answers[id].trim().toUpperCase()
 				solved[id] = true
 				snackbarLabel = 'ถูกต้อง!'
 				if(res.isFinished){
@@ -109,11 +109,11 @@
 	scrimClickAction=""
 	escapeKeyAction=""
 >
-	<Title id="simple-title">ขอแสดงความยินดีด้วย <IconButton class="material-icons">emoji_emotions</IconButton></Title>
+	<Title id="simple-title">🎉ขอแสดงความยินดีด้วย🎉</Title>
 	<Content id="simple-content">
 		<div>
-			นำคำตอบนี้ไปใส่ในประตู เพื่อไปด่านต่อไป<br><br>
-			กรอกชื่อเพื่อแสดงในตารางอันดับ<br>
+			นำคำตอบ {answers[5]} ไปใส่ในประตู เพื่อไปด่านต่อไป<br><br>
+			ใส่ชื่อเพื่อแสดงในตารางอันดับ<br>
 			<Textfield variant="outlined" label="ชื่อ" bind:value={user}/><br/>
 		</div>
 		<Actions>

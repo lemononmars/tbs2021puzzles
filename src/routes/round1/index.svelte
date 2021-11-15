@@ -1,10 +1,6 @@
 <script>
 </script>
 
-<svelte:head>
-	<title>About</title>
-</svelte:head>
-
 <div style='text-align:center'>
 <h1>ยินดีต้อนรับเข้าสู่ด่านที่ 1 ของเกมปริศนา <br> Thailand Board Game Show 2021</h1>
 <img src="./favicon.png/" alt="Thailand Board Game Show logo"/><br/>

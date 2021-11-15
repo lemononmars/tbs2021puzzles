@@ -19,7 +19,7 @@
 	var stateColors = ['primary', 'secondary']
 	
 	function flipState(i,j){
-		letterStates[i][j] = (letterStates[i][j] + 1) % 2 // TODO: 3 states?
+		letterStates[i][j] = (letterStates[i][j] + 1) % stateColors.length // TODO: 3 states?
 	}
 
 	function clearMarks(){

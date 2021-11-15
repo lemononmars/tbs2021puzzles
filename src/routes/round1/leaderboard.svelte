@@ -15,10 +15,6 @@
 	})
 </script>
 
-<svelte:head>
-	<title>Leaderboard</title>
-</svelte:head>
-
 <h1>ตารางอันดับ</h1>
 
 {#if loaded}

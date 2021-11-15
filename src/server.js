@@ -30,7 +30,7 @@ const io = socketIo(server, {
 });
 
 // heroku postgres sql
-const { Client } = require('pg');
+import { Client } from 'pg';
 process.env.DATABASE_URL = 'postgres://dozphbaclsjpzh:75fc623b54e01dd23610b4184c1c149a7c84377cd27a31bb4d583738cb6bcfb5@ec2-35-168-65-132.compute-1.amazonaws.com:5432/d3bo1faurltsbj'
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -49,12 +49,16 @@ client.connect(function(err){
 });
 
 io.on('connection', function(socket){
-	const solutions = ['READS','UNDER','CELLS','TAKEN','TWICE','ENTER'] //super secret
+	const solution = [ //super secret
+		['READS','UNDER','CELLS','TAKEN','TWICE','ENTER'],
+		['NEXTTURN', 'ROLL', 'DRAW', 'PICK'],
+		['JUDY', 'MACHIKORO']
+	]
 
 	socket.on('submit answer', (data, verify) =>{
 		const cleanAnswer = data.answer.trim().toUpperCase()
-		const isCorrect = solutions[data.id] === cleanAnswer 
-		const column = isCorrect? 'correct':'incorrect'
+		const isCorrect = solution[data.round][data.id] === cleanAnswer 
+		const column = isCorrect? 'correct':'incorrect' // for logging
 		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${data.id}`, (err)=>{
 			if(err) throw err
 		})
@@ -63,31 +67,30 @@ io.on('connection', function(socket){
 			isCorrect: isCorrect, 
 			isFinished: false
 		}
-		if (isCorrect && data.id == 5 || data.id == 10){
-			returnResult.isFinished = true
-		}	
+		if (isCorrect)
+			if((data.round == 0 && data.id == 5) || data.round == 2)
+				returnResult.isFinished = true
 		verify(returnResult)
 	})
 
-	socket.on('submit final answer', (data, callback) =>{
-		if(data.answer != solutions[5]) {
+	socket.on('add to leaderboard', (data, callback) =>{
+		if(round == 0 && data.answer != solution[0][5] || round == 2 && data.answer != solution[2][0]) {
 			callback(false)
 			return;
 		}
 
 		const d = new Date()
 		var timeString = d.toLocaleString('th-TH')
-		client.query(`INSERT INTO leaderboard1 VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err) {
+		client.query(`INSERT INTO leaderboard${data.round} VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err) {
 			if (err) throw err;
 		})
 		callback(true)
 	})
 
 	socket.on('verify save', (data, verify) =>{
-		if(!data) return
-
-		const s = data.map((ans,i) => ans === solutions[i])
-		const a = data.map((ans,i) => ans === solutions[i]? solutions[i]:'')
+		if(!data.answers) return
+		const s = data.answers.map((ans,i) => ans === solution[data.round][i])
+		const a = data.answers.map((ans,i) => ans === solution[data.round][i]? solution[data.round][i]:'')
 		verify(s, a)
 	})
 

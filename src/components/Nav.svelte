@@ -1,35 +1,37 @@
 <script>
   export let segment
 	import Tab, {Label} from '@smui/tab';
-   import TabBar from '@smui/tab-bar';
+  import TabBar from '@smui/tab-bar';
  
   let tabs = [
     {
-      href: '/',
+      href: '/round1/',
       label: 'หน้าแรก',
 	 },
 	 {
-      href: '/puzzles',
+      href: '/round1/puzzles',
       label: 'ปริศนา',
 	 },
 	 {
-      href: '/submit',
+      href: '/round1/submit',
       label: 'ส่งคำตอบ',
 	 },
 	 {
-      href: '/leaderboard',
+      href: '/round1/leaderboard',
       label: 'อันดับ',
 	 },
 	 {
-      href: '/about',
+      href: '/round1/about',
       label: 'เกี่ยวกับ',
 	 },
   ];
   let active = tabs[0];
 </script>
 
-<TabBar {tabs} let:tab bind:active>
-  <Tab {tab} href={tab.href} minWidth>
-    <Label>{tab.label}</Label>
-  </Tab>
-</TabBar>
+<nav>
+  <TabBar {tabs} let:tab bind:active>
+    <Tab {tab} href={tab.href} minWidth>
+      <Label>{tab.label}</Label>
+    </Tab>
+  </TabBar>
+</nav>

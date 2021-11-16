@@ -16,7 +16,7 @@ const dev = mode === 'development';
 const legacy = !!process.env.SAPPER_LEGACY_BUILD;
 const production = !process.env.ROLLUP_WATCH
 
-const onwarn = (warning, onwarn) {
+const onwarn = (warning, onwarn) => {
 	if (warning.code === 'THIS_IS_UNDEFINED') return;
 
 	return (warning.code === 'MISSING_EXPORT' && /'preload'/.test(warning.message)) ||

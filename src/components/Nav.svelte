@@ -1,5 +1,5 @@
 <script>
-  export let segment
+  //export let segment
 	import Tab, {Label} from '@smui/tab';
   import TabBar from '@smui/tab-bar';
  
@@ -15,10 +15,6 @@
 	 {
       href: '/round1/submit',
       label: 'ส่งคำตอบ',
-	 },
-	 {
-      href: '/round1/leaderboard',
-      label: 'อันดับ',
 	 },
 	 {
       href: '/round1/about',

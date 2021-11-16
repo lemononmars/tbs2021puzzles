@@ -70,7 +70,7 @@
 <div id = 'main'>
 	<span style="text-alignt: center;">
 		{#if loaded}
-			<img src={iconurl} alt='puzzle image'/>
+			<img src={iconurl} alt="puzzle"/>
 		{/if}
 	</span>
 	<span style="text-alignt: center; vertical-align: middle">

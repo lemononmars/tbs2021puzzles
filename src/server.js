@@ -45,7 +45,7 @@ client.connect(function(err){
 	//deleteTables()
 	//createTables()
 	//clearTables()
-	//showSubmissionLog()
+	//saveLogs()
 });
 
 io.on('connection', function(socket){
@@ -122,7 +122,7 @@ function createTables(){
 		client.query(`INSERT INTO answerlog VALUES ('${i}', '0','0')`)
 }
 
-function showSubmissionLog(){
+function saveLogs(){
 	client.query(`SELECT * FROM answerlog`, (err, result) =>{
 		if(err) throw err;
 		fs.writeFile("answerlog.txt", JSON.stringify(result.rows), function(err) {

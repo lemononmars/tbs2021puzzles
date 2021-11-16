@@ -36,13 +36,13 @@
 				answers[id] = answers[id].trim().toUpperCase()
 				$store.round1answers[id] = answers[id]
 				solved[id] = true
-				snackbarLabel = 'ถูกต้อง!'
+				snackbarLabel = 'ถูกต้อง!✔️'
 				if(res.isFinished){
 					dialogOpen = true
 				}
 			}	
 			else{
-				snackbarLabel = 'ยังไม่ถูก'
+				snackbarLabel = 'ยังไม่ถูก❌'
 			}
 			snackbarWithClose.open()
 		})
@@ -69,10 +69,6 @@
 			submit(answers.indexOf(e.target.value));
   	};
 </script>
-
-<svelte:head>
-	<title>ส่งคำตอบ</title>
-</svelte:head>
 
 <Snackbar bind:this={snackbarWithClose}>
 	<Label>{snackbarLabel}</Label>

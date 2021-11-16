@@ -1,10 +1,6 @@
 <script>
 </script>
 
-<svelte:head>
-	<title>About</title>
-</svelte:head>
-
 <h2>รางวัล</h2>
 <ol>
 	<li>เมื่อเล่นเสร็จแล้ว จะสามารถใส่ชื่อเพื่อจัดอันดับ โดยให้ใช้ชื่อเดียวกันกับชื่อใน gather.town</li>

@@ -51,23 +51,30 @@ client.connect(function(err){
 io.on('connection', function(socket){
 	const solution = [ //super secret
 		['READS','UNDER','CELLS','TAKEN','TWICE','ENTER'],
-		['NEXTTURN', 'ROLL', 'DRAW', 'PICK', 'MACHIKORO']
+		['SKIP', 'ROLL', 'DRAW', 'PICK', 'PRIZE']
 	]
 
 	socket.on('submit answer', (data, verify) =>{
+		var returnResult = {
+			isCorrect: false, 
+			isFinished: false
+		}
+
+		if(!data || !data.answer) {
+			verify(returnResult)
+			return;
+		}
+
 		const cleanAnswer = data.answer.trim().toUpperCase()
 		const isCorrect = solution[data.round][data.id] === cleanAnswer 
+		returnResult.isCorrect = isCorrect
 		const column = isCorrect? 'correct':'incorrect' // for logging
 		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${data.id}`, (err)=>{
 			if(err) throw err
 		})
 		
-		var returnResult = {
-			isCorrect: isCorrect, 
-			isFinished: false
-		}
 		if (isCorrect)
-			if((data.round == 0 && data.id == 5) || data.round == 2)
+			if((data.round == 0 && data.id == 5) || (data.round == 1 && data.id == 4))
 				returnResult.isFinished = true
 		verify(returnResult)
 	})
@@ -78,7 +85,8 @@ io.on('connection', function(socket){
 			return;
 		}
 
-		data.email = 'none@gmail.com'
+		if (!data.email)
+			data.email = 'none@gmail.com'
 		const d = new Date()
 		var timeString = d.toLocaleString('th-TH')
 		client.query(`INSERT INTO leaderboard${data.round+1} VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err) {

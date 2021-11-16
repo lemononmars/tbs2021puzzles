@@ -17,7 +17,6 @@
    const { id } = params;
 	const puzzleId = id-1
 	
-	//export let id: number
 	let solved = false
 	let answer = ''
 	let iconurl = `./enter/puzzle${puzzleId+1}.png`
@@ -67,7 +66,7 @@
 	</Actions>
  </Snackbar>
 
-<div id = 'main'>
+<div class='main'>
 	<span style="text-alignt: center;">
 		{#if loaded}
 			<img src={iconurl} alt="puzzle"/>
@@ -86,13 +85,3 @@
 		{/if}
 	<span>
 </div>
-
-<style>
-	#main{
-		background-color: white;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		margin: auto;
-	}
-</style>

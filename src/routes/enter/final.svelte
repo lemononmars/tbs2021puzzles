@@ -4,7 +4,9 @@
 	import Textfield from '@smui/textfield'
 	import Button, { Label } from '@smui/button';
 	import IconButton from '@smui/icon-button';
-	import Select, { Option } from '@smui/select';
+	import {Facebook, Twitter} from 'svelte-share-buttons-component';
+
+	let fburl = `https://tbs2021puzzles.herokuapp.com/round1&display=popup&hashtag=#tbs_2021&quote=อันดับที่`
 
 	import Snackbar, {SnackbarComponentDev, Actions} from '@smui/snackbar';
 	let snackbarWithClose: SnackbarComponentDev;
@@ -12,15 +14,11 @@
 	import io from 'socket.io-client';
 	const socket = io()
 
-	import { goto } from "@sapper/app";
-
-	let solved = [false,false,false,false]
-	let answers = ['','','','']
+	let solved = [false,false,false,false,false]
+	let answers = ['','','','','']
 	$: numsolved = solved.filter(x => x).length
-	let finalanswer = ['','']
-	const playerNames = []
-	const playerScores = []
-	const gameList = []
+	let userInfo = {username: '', email: ''}
+	let finalRanking = 0
 
 	onMount(async() => {
 		store.useLocalStorage()
@@ -34,15 +32,9 @@
 	})
 
 	function submit(id: number){
-		var submission
-		if(id == 4)
-			submission = {round: 2, id:id, answer: answers[id]}
-		else
-			submission = {round: 1, id:id, answer: answers[id]}
+		var submission = {round: 1, id:id, answer: answers[id]}
 
-		console.log(submission)
 		socket.emit('submit answer', submission, function(res){
-			console.log(res)
 			if(res.isCorrect) {
 				answers[id] = answers[id].trim().toUpperCase()
 				$store.round2answers[id] = answers[id]
@@ -60,6 +52,20 @@
    	if (e.keyCode === 13)
 			submit(answers.indexOf(e.target.value));
   	}
+
+	function submitFinal(){
+		var submission = {answer: answers[4], user: userInfo.username, email:userInfo.email} //submit final answer one more time
+		socket.emit('submit final answer', submission, function(res){
+			if(res.success) {
+				snackbarLabel = 'บันทึกข้อมูลแล้ว'
+				snackbarWithClose.open()
+			}
+			else {
+				snackbarLabel = 'คำตอบไม่ถูกต้อง ลองตอบใหม่'
+				snackbarWithClose.open()
+			}
+		})
+	}
 </script>
 
 <Snackbar bind:this={snackbarWithClose}>
@@ -70,31 +76,43 @@
  </Snackbar>
 
 <div id = 'main'>
-	{#if numsolved < 4}
-		{#each solved as s, index}
-			<span style="text-alignt: center; vertical-align: middle">
-				<a href={`/enter/puzzle${index+1}`}> ปริศนาข้อที่ {index+1} </a>
-				<Textfield variant="outlined" bind:value={answers[index]} on:keydown={keyPressed} disabled={s}/>
-				{#if s}
-					<Button variant="outlined" disabled>
-						<Label>ถูกต้อง!</Label>
-					</Button>
-				{:else}
-					<Button on:click={() => submit(index)} variant="raised">
-						<Label>ส่งคำตอบ</Label>
-					</Button>
-				{/if}
-			</span>
-		{/each}
-	{:else}
-		<Select variant="outlined" bind:value={finalanswer[0]}>
-			<Option value="0">เลือกชื่อ</Option>
-			{#each playerNames as name, index}
-				<Option value={index}> 
-					{name}
-				</Option>
+	{#if !solved[4]}
+		{#if numsolved < 4}
+			{#each [0,1,2,3] as index}
+				<span style="text-alignt: center; vertical-align: middle">
+					<a href={`/enter/puzzle${index+1}`}> ปริศนาข้อที่ {index+1} </a>
+					<Textfield variant="outlined" bind:value={answers[index]} on:keydown={keyPressed} disabled={solved[index]}/>
+					{#if solved[index]}
+						<Button variant="outlined" disabled>
+							<Label>ถูกต้อง!</Label>
+						</Button>
+					{:else}
+						<Button on:click={() => submit(index)} variant="raised">
+							<Label>ส่งคำตอบ</Label>
+						</Button>
+					{/if}
+				</span>
 			{/each}
-		</Select>
+		{:else}
+			<h1>ปริศนาข้อสุดท้าย</h1>
+			<Textfield variant="outlined" bind:value={answers[4]} on:keydown={keyPressed} disabled={solved[4]}/>
+			<Button on:click={() => submit(4)} variant="raised">
+				<Label>ส่งคำตอบ</Label>
+			</Button>
+		{/if}
+	{:else}
+		ยินดีด้วย!!!
+
+		<Textfield variant="outlined" bind:value={userInfo.username} label="ชื่อใน gather.town" required/>
+		<Textfield variant="outlined" bind:value={userInfo.email} label="email ที่ใช้สมัคร" required/>
+		<Button on:click={() => submitFinal()} variant="raised">
+			<Label>ส่งข้อมูล</Label>
+		</Button>
+
+		<span>
+			<Facebook class="share-button" url={fburl} />
+			<Twitter class="share-button" text="แก้ปริศนาได้เป็นคนที่ {finalRanking} Thailand Board Game Show 2021 Puzzles" hashtags="tbs_2021,svelte"/>
+		</span>
 	{/if}
 </div>
 

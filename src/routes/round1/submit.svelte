@@ -77,7 +77,7 @@
 	</Actions>
  </Snackbar>
 
-<div id = 'main'>
+<div class = 'main'>
 	<ClueTable/>
 
 	<table>
@@ -120,13 +120,3 @@
 		</Actions>
 	</Content>
 </Dialog>
-
-<style>
-	#main{
-		background-color: white;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		margin: auto;
-	}
-</style>

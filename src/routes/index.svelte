@@ -23,8 +23,7 @@
 <img src="./favicon.png/" alt="Thailand Board Game Show logo"/><br/>
 {#if loaded}
 	{#each tables as table, i}
-		<h1>ตารางอันดับรอบที่ {i+1}</h1>
-		{#if table.length > 0}
+		<h1>ตารางอันดับด่านที่ {i+1}</h1>
 		<DataTable table$aria-label="leaderboard" style="max-width: 100%;">
 			<Head>
 				<Row>
@@ -45,17 +44,19 @@
 					</Cell>
 				</Row>
 			</Head>
-			<Body>
-			{#each table as row, i}
-			<Row>
-				<Cell>{i+1}</Cell>
-				<Cell>{row.name}</Cell>
-				<Cell>{row.time}</Cell>
-			</Row>
-			{/each}
-			</Body>
+			{#if table.length > 0}
+				<Body>
+				{#each table as row, i}
+				<Row>
+					<Cell>{i+1}</Cell>
+					<Cell>{row.name}</Cell>
+					<Cell>{row.time}</Cell>
+				</Row>
+				{/each}
+				</Body>
+			{/if}
 		</DataTable>
-		{:else}
+		{#if table.length == 0}
 			<h2>ยังไม่มีใครไขได้ครบ... คุณอาจเป็นคนแรกก็ได้นะ</h2>
 		{/if}
 	{/each}

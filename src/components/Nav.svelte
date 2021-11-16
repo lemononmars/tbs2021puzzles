@@ -10,7 +10,7 @@
 	 },
 	 {
       href: '/round1/puzzles',
-      label: 'ปริศนา',
+      label: 'ปริศนา (ตารางตัวอักษร 5x5)',
 	 },
 	 {
       href: '/round1/submit',

@@ -49,6 +49,7 @@
 <div id = 'main'>
 	<ClueTable/>
 
+	<h2>เลือกปริศนา</h2>
 	<Select variant="outlined" bind:value={activePuzzle} on:SMUI:action={()=>(activeSection = 0)}>
 		<Option value="0">เลือกปริศนา</Option>
 		{#each [1,2,3,4,5,6] as id}

@@ -20,7 +20,7 @@
 	$: numsolved = solved.filter(x => x).length
 	let userInfo = {username: '', email: ''}
 	let submitInfo = false
-	let finalRanking = 0
+	let ranking = -1
 
 	onMount(async() => {
 		store.useLocalStorage()
@@ -67,6 +67,7 @@
 			if(res.success) {
 				snackbarLabel = 'บันทึกข้อมูลแล้ว'
 				submitInfo = true
+				ranking = res.ranking
 			}
 			else {
 				snackbarLabel = 'คำตอบไม่ถูกต้อง ลองตอบใหม่'
@@ -122,12 +123,14 @@
 					<Label>ส่งข้อมูล</Label>
 				</Button>
 			{:else}
-				เก็บข้อมูลเรียบร้อยแล้ว ตรวจสอบรายชื่อใน <Button href='/'><Label>ตารางอันดับ</Label></Button> ได้
+				เก็บข้อมูลเรียบร้อยแล้ว! คุณได้ลำดับที่ {ranking} <br>
+				ตรวจสอบรายชื่อใน <Button href='/'><Label>ตารางอันดับ</Label></Button> <br><br>
+				แชร์ให้คนอื่นรู้ว่าเราเล่นจบแล้ว!
+				<span>
+					<Facebook class="share-button" url={fburl} />
+					<Twitter class="share-button" text="แก้ปริศนาได้เป็นคนที่ {ranking} Thailand Board Game Show 2021 Puzzles" hashtags="tbs_2021,svelte"/>
+				</span>
 			{/if}
 		</div>
-		<span>
-			<Facebook class="share-button" url={fburl} />
-			<Twitter class="share-button" text="แก้ปริศนาได้เป็นคนที่ {finalRanking} Thailand Board Game Show 2021 Puzzles" hashtags="tbs_2021,svelte"/>
-		</span>
 	{/if}
 </div>

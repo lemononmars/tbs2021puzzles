@@ -77,7 +77,7 @@
 		],
 	]
 
-
+	let ranking = -1
 	function submit(id: number){
 		var submission = {round: 0, id:id, answer: answers[id]}
 		socket.emit('submit answer', submission, function(res){
@@ -103,7 +103,8 @@
 		socket.emit('add to leaderboard', submission, function(res){
 			if(res.success) {
 				dialogOpen = false
-				snackbarLabel = 'บันทึกข้อมูลแล้ว'
+				ranking = res.ranking
+				snackbarLabel = `บันทึกข้อมูลแล้ว คุณได้ลำดับที่ ${ranking}`
 				snackbarWithClose.open()
 			}
 			else {

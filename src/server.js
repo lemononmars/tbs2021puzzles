@@ -81,26 +81,28 @@ io.on('connection', function(socket){
 		verify(returnResult)
 	})
 
-	socket.on('add to leaderboard', (data, callback) =>{
+	socket.on('add to leaderboard', async (data, callback) =>{
 		var res = {
 			success: false,
 			ranking: -1
 		}
 		// check answer one more time to make sure no one tries something funny
-		if(data.answer != solution[data.round].slice(-1)[0]) {
-			callback(res)
-			return;
-		}
+		if(data.answer != solution[data.round].slice(-1)[0])
+			return callback(res)
 
 		res.success = true
-		if (!data.email)
-			data.email = 'none@gmail.com'
 		const d = new Date()
 		var timeString = d.toLocaleString('th-TH')
-		client.query(`INSERT INTO leaderboard${data.round+1} VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err) {
-			if (err) throw err;
+		let queryString = `INSERT INTO leaderboard${data.round+1} VALUES ('${data.user}', '${data.email}','${timeString}')`
+		client.query(queryString, (err, result) => {
+			if (err) throw err
 		})
-		callback(res)
+
+		client.query(`SELECT name FROM leaderboard${data.round+1}`, (err, result) => {
+			if(err) throw err
+			res.ranking = result.rows.length
+			callback(res)
+		})
 	})
 
 	socket.on('verify save', (data, verify) =>{

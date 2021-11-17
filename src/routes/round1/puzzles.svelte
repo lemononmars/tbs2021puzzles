@@ -1,19 +1,50 @@
 <script lang="ts">
 	import Card, {Content, Actions} from '@smui/card';
-	import ClueTable from '../../components/ClueTable.svelte';
 	import Button, { Label } from '@smui/button';
-	import Drawer, {AppContent, Content, Header, Title} from '@smui/drawer';
-	import List, { Item, Text, Graphic } from '@smui/list';
+	import Drawer, {AppContent} from '@smui/drawer';
+	import List, { Item, Text} from '@smui/list';
+	import {store} from '../../stores/save'
+	import {onMount} from 'svelte'
+	import ClueTable from '../../components/ClueTable.svelte';
+	import Textfield from '@smui/textfield'
+	import IconButton from '@smui/icon-button';
+	import Dialog, { Title, Content, Actions } from '@smui/dialog';
+	let dialogOpen = false;
+	import Snackbar, {SnackbarComponentDev,} from '@smui/snackbar';
+	let snackbarWithClose: SnackbarComponentDev;
+	let snackbarLabel = ''
+	import io from 'socket.io-client';
+	const socket = io()
 
-	let activePuzzle = -1
+	let solved = [false, false, false, false, false, false]
+	let answers = [' ',' ',' ',' ',' ',' ']
+
+	onMount(async() => {
+		store.useLocalStorage()
+		const submission = {round:0, answers: $store.round1answers}
+		socket.emit('verify save', submission, function(s: boolean[], a: string[]){
+			solved = s
+			answers = a
+		})
+
+		const res = await fetch(`./round1/puzzleicon1.png`) //there should be a better way....
+	})
+
+	let activePuzzle = 0
 	let activeSection = 0
-	const iconurls = [0,1,2,3,4,5].map(x => `./round1/puzzleicon${x+1}.png`)
+	const iconurls = [0,0,1,2,3,4,5].map(x => `./round1/puzzleicon${x+1}.png`)
 
 	const sectionTitles = ['วิธีหาข้อมูล', 'วิธีแก้ปริศนา', 'วิธีอ่านคำตอบ']
 
 	var puzzleTitles = [0,1,2,3,4].map(x => `ปริศนาข้อที่ ${x+1}`)
-	puzzleTitles = [... puzzleTitles, `ปริศนาข้อสุดท้าย`]
+	puzzleTitles = ['วิธีเล่น',... puzzleTitles, 'ปริศนาข้อสุดท้าย']
 	const puzzles = [
+		[ 	
+			`<ul> <li>หาคำใบ้ในงาน Thailand Board Game Show 2021 เท่านั้น ไม่ต้อง Google หาข้อมูล</li>
+					<li>ใช้ตารางตัวอักษร 5x5 (ด้านบน) สำหรับปริศนาทั้ง 5 ข้อ</li> </ul>`,
+			`<ul> <li>วิเคราะห์ข้อมูลที่ได้มา ว่าจะแก้ปริศนาอย่างไร</li> <li>ถ้าแก้ปริศนาถูก จะได้ตำแหน่งในตาราง 5 ช่อง เป็นตัวอักษร 5 ตัว</li></ul>`,
+			`<ul> <li>อ่านตัวอักษร 5 ตัวนั้น บนลงล่าง หรือซ้ายไปขวา อย่างใดอย่างหนึ่ง จะได้คำตอบของข้อนั้น </li> <li> นำคำตอบไปใส่ในช่องด้านบน และกด 'ส่งคำตอบ'</li></ul>`
+		],
 		[
 			'หากลุ่มปลาที่ซ่อนอยู่ในทะเล ทั้งหมด 5 กลุ่ม แต่ละกลุ่มจะมี 1 ช่องที่มีทั้งปลาทั้งไฟ',
 			'นำกลุ่มปลาทั้ง 5 กลุ่ม มาวางในตารางขนาด 5x5 ให้ทับทุกช่อง (เหมือน Tetris) โดยไม่ซ้อนทับกัน และไม่ต้องหมุน',
@@ -46,6 +77,46 @@
 		],
 	]
 
+
+	function submit(id: number){
+		var submission = {round: 0, id:id, answer: answers[id]}
+		socket.emit('submit answer', submission, function(res){
+			if(res.isCorrect) {
+				answers[id] = answers[id].trim().toUpperCase()
+				$store.round1answers[id] = answers[id]
+				solved[id] = true
+				snackbarLabel = 'ถูกต้อง!✔️'
+				if(res.isFinished){
+					dialogOpen = true
+				}
+			}	
+			else{
+				snackbarLabel = 'ยังไม่ถูก❌'
+			}
+			snackbarWithClose.open()
+		})
+	}
+
+	let user = ''
+	function submitFinal(){
+		var submission = {round:0, answer: answers[5], user: user, email: 'none'} //submit final answer one more time
+		socket.emit('add to leaderboard', submission, function(res){
+			if(res.success) {
+				dialogOpen = false
+				snackbarLabel = 'บันทึกข้อมูลแล้ว'
+				snackbarWithClose.open()
+			}
+			else {
+				snackbarLabel = 'คำตอบไม่ถูกต้อง ลองตอบใหม่'
+				snackbarWithClose.open()
+			}
+		})
+	}
+
+	function keyPressed(e){
+   	if (e.keyCode === 13)
+			submit(answers.indexOf(e.target.value));
+  	};
 	function setActive(act: number){
 		activePuzzle = act
 		activeSection = 0
@@ -56,18 +127,14 @@
 	<ClueTable/>
 	<div class="drawer-container">
 		<Drawer>
-		  <Header>
-			 <Title>เลือกปริศนา</Title>
-		  </Header>
 		  <Content>
 			 <List>
-				{#each Array(6) as _unused, id}
+				{#each Array(7) as _unused, id}
 				<Item
 				  href="javascript:void(0)"
 				  on:click={() => setActive(id)}
 				  activated={activePuzzle === id}
 				>
-					<Graphic style={`background-image: url(${iconurls[id]})`}/>
 					<Text>{puzzleTitles[id]}</Text>
 				</Item>
 				{/each}
@@ -77,10 +144,29 @@
 	  
 		<AppContent class="app-content">
 		  <main class="main-content">
-			{#if activePuzzle >= 0}
 				<div class="card-display" style='width:100%'>
 					<div class="card-container">
 						<Card>
+							{#if activePuzzle > 0}
+								<span class='flex-row'>
+									<img src={iconurls[activePuzzle]} alt = 'puzzle icon'/>
+									<Textfield 
+										variant="outlined" 
+										bind:value={answers[activePuzzle-1]} 
+										on:keydown={keyPressed} 
+										disabled={solved[activePuzzle-1]}
+									/>
+										{#if solved[activePuzzle-1]}
+											<Button variant="outlined" disabled>
+												<Label>ถูกต้อง!</Label>
+											</Button>
+										{:else}
+											<Button on:click={() => submit(activePuzzle-1)} variant="raised">
+												<Label>ส่งคำตอบ</Label>
+											</Button>
+										{/if}
+								</span>
+							{/if}
 							{#each sectionTitles as title, i}
 								{#if activeSection >= i}
 								<Actions fullBleed>
@@ -97,17 +183,43 @@
 						</Card>
 					</div>
 				</div>
-			{/if}
 		  </main>
 		</AppContent>
 	</div>
 </div>
 
+<Snackbar bind:this={snackbarWithClose}>
+	<Label>{snackbarLabel}</Label>
+	<Actions>
+	  <IconButton class="material-icons" title="Dismiss">close</IconButton>
+	</Actions>
+ </Snackbar>
+ 
+<Dialog 
+bind:open={dialogOpen} aria-labelledby="simple-title" aria-describedby="simple-content"
+scrimClickAction=""
+escapeKeyAction=""
+>
+<Title id="simple-title">🎉ขอแสดงความยินดีด้วย🎉</Title>
+<Content id="simple-content">
+	<div>
+		นำคำตอบ {answers[5]} ไปใส่ในประตู เพื่อไปด่านต่อไป<br><br>
+		ใส่ชื่อเพื่อแสดงในตารางอันดับ<br>
+		<Textfield variant="outlined" label="ชื่อ" bind:value={user}/><br/>
+	</div>
+	<Actions>
+		<Button variant="outlined" on:click={submitFinal}>
+			<Label>ส่งข้อมูล</Label>
+		</Button>
+	</Actions>
+</Content>
+</Dialog>
+
 <style>
 	.drawer-container {
 	  position: relative;
 	  display: flex;
-	  height: 400px;
+	  height: 380px;
 	  border: 1px solid
 		 var(--mdc-theme-text-hint-on-background, rgba(0, 0, 0, 0.1));
 	  overflow: hidden;

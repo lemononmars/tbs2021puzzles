@@ -10,24 +10,30 @@
 	 },
 	 {
       href: '/round1/puzzles',
-      label: 'ปริศนา (ตารางตัวอักษร 5x5)',
-	 },
-	 {
-      href: '/round1/submit',
-      label: 'ส่งคำตอบ',
+      label: 'ปริศนา',
 	 },
 	 {
       href: '/round1/about',
-      label: 'เกี่ยวกับ',
+      label: 'รางวัล',
 	 },
   ];
   let active = tabs[0];
 </script>
 
-<nav>
+<nav class='navbar'>
   <TabBar {tabs} let:tab bind:active>
-    <Tab {tab} href={tab.href} minWidth>
+    <Tab {tab} href={tab.href}>
       <Label>{tab.label}</Label>
     </Tab>
   </TabBar>
 </nav>
+
+<style>
+  .navbar{
+    background-color: white;
+    position:fixed; 
+    top:0; 
+    width: 100%; 
+    z-index: 1;
+  }
+</style>

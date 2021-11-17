@@ -1,4 +1,5 @@
 import * as sapper from '@sapper/server';
+import fs from 'fs';
 import compression from 'compression';
 import http from 'http';
 import polka from 'polka';
@@ -69,7 +70,8 @@ io.on('connection', function(socket){
 		const isCorrect = solution[data.round][data.id] === cleanAnswer 
 		returnResult.isCorrect = isCorrect
 		const column = isCorrect? 'correct':'incorrect' // for logging
-		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${data.id}`, (err)=>{
+		const answerLogIndex = data.id + 5*data.round // add 5 for round 2
+		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${answerLogIndex}`, (err)=>{
 			if(err) throw err
 		})
 		
@@ -80,11 +82,17 @@ io.on('connection', function(socket){
 	})
 
 	socket.on('add to leaderboard', (data, callback) =>{
-		if(round == 0 && data.answer != solution[0][5] || round == 1 && data.answer != solution[1][4]) {
-			callback(false)
+		var res = {
+			success: false,
+			ranking: -1
+		}
+		// check answer one more time to make sure no one tries something funny
+		if(data.answer != solution[data.round].slice(-1)[0]) {
+			callback(res)
 			return;
 		}
 
+		res.success = true
 		if (!data.email)
 			data.email = 'none@gmail.com'
 		const d = new Date()
@@ -92,7 +100,7 @@ io.on('connection', function(socket){
 		client.query(`INSERT INTO leaderboard${data.round+1} VALUES ('${data.user}', '${data.email}','${timeString}')`, function (err) {
 			if (err) throw err;
 		})
-		callback(true)
+		callback(res)
 	})
 
 	socket.on('verify save', (data, verify) =>{
@@ -126,7 +134,7 @@ function createTables(){
 	//client.query(`CREATE TABLE leaderboard1 (name VARCHAR, email VARCHAR, time VARCHAR)`)
 	//client.query(`CREATE TABLE leaderboard2 (name VARCHAR, email VARCHAR, time VARCHAR)`)
 	client.query(`CREATE TABLE answerlog (id NUMERIC, correct NUMERIC, incorrect NUMERIC)`)
-	for(var i = 0; i < 6; i ++)
+	for(var i = 0; i < 11; i ++)
 		client.query(`INSERT INTO answerlog VALUES ('${i}', '0','0')`)
 }
 
@@ -134,6 +142,15 @@ function saveLogs(){
 	client.query(`SELECT * FROM answerlog`, (err, result) =>{
 		if(err) throw err;
 		fs.writeFile("answerlog.txt", JSON.stringify(result.rows), function(err) {
+			if (err) {
+				 console.log(err);
+			}
+	  	});
+	})
+
+	client.query(`SELECT * FROM leaderboard2`, (err, result) =>{
+		if(err) throw err;
+		fs.writeFile("winnerlist.txt", JSON.stringify(result.rows), function(err) {
 			if (err) {
 				 console.log(err);
 			}

@@ -67,15 +67,14 @@
  </Snackbar>
 
 <div class='main'>
-	<span style="text-alignt: center; width: 90%;">
-		{#if loaded}
-			<img src={iconurl} style='max-height: 90vh' alt="puzzle"/>
-		{/if}
-	</span>
-	{#if puzzleId === 2}
-		<a href='https://puzz.link/p?numlin/9/9/h1j32j4l5v67o2g4l7r3j165i'>คลิกที่นี่เพื่อเล่นบนเว็บ</a>
+	{#if loaded}
+		<img src={iconurl} style='max-height: 80vh' alt="puzzle"/>
 	{/if}
-	<span style="text-alignt: center; vertical-align: middle">
+	
+	<span class='flex-row'>
+		{#if puzzleId === 2}
+			<a href='https://puzz.link/p?numlin/9/9/h1j32j4l5v67o2g4l7r3j165i' target='_blank'>คลิกที่นี่เพื่อเล่นบนเว็บ</a>
+		{/if}
 		<Textfield variant="outlined" bind:value={answer} on:keydown={keyPressed} disabled={solved}/>
 		{#if solved}
 			<Button variant="outlined" disabled>

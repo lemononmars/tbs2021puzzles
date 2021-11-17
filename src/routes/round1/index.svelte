@@ -2,35 +2,24 @@
 	import Button, { Label } from '@smui/button';
 </script>
 
-<div style='text-align:center'>
-<h1>ยินดีต้อนรับเข้าสู่ด่านที่ 1 ของเกมปริศนา <br> Thailand Board Game Show 2021</h1>
-<img src="./favicon.png/" alt="Thailand Board Game Show logo"/><br/>
+<div class = 'main'>
+	<h1>ยินดีต้อนรับเข้าสู่ด่านที่ 1 ของเกมปริศนา <br> Thailand Board Game Show 2021</h1>
+	<img src="./favicon.png/" alt="Thailand Board Game Show logo"/><br/>
+	
+	<h1>วิธีเล่น</h1>
+
+	<ol>
+		<li> คัดลอก <Button href='https://tbs2021puzzles.herokuapp.com/round1' target='_blank'>
+			<Label>ลิงก์นี้</Label></Button> แล้วเปิดใหม่ใน web browser หรือกด Ctrl ค้างไว้แล้วคลิกที่ลิงก์</li>
+		<li>แก้ปริศนา 5 ข้อ โดยอ่านโจทย์และส่งคำตอบในแถบ <Button href='/round1/puzzles'>
+			<Label>ปริศนา</Label>
+		</Button> (ด้านบน) </li>
+		<li>นำคำตอบของปริศนาทั้ง 5 ข้อมาอ่านเรียงกัน เพื่อแก้ปริศนาข้อสุดท้าย</li>
+		<li>นำคำตอบของปริศนาข้อสุดท้าย ใส่เป็นรหัสผ่านประตูเพื่อไปด่านถัดไป</li>
+		<li><em>แนะนำ</em>ให้จดคำตอบของทุกข้อเก็บไว้ อาจเป็นประโยชน์</li>
+	</ol>
+
+	<Button href='/round1/puzzles'>
+		<Label>เริ่มเลย!</Label>
+	</Button>
 </div>
-
-<h1>วิธีเล่น</h1>
-
-<ol>
-	<li><a href='https://tbs2021puzzles.herokuapp.com/round1' target="_blank">เปิดลิงก์หน้านี้</a>ใน web browser</li>
-	<li>แก้ปริศนา 5 ข้อ โดยอ่านโจทย์ในแถบ <a href='/round1/puzzles'>"ปริศนา"</a> (ด้านบน) </li>
-	<li>หาคำใบ้ในงาน Thailand Board Game Show 2021</li>
-	<li>นำคำตอบมาใส่ในแถบ <a href='/round1/submit'>"ส่งคำตอบ"</a> (ด้านบน)</li>
-	<li>นำคำตอบของปริศนาทั้ง 5 ข้อมาอ่านเรียงกัน เพื่อแก้ปริศนาข้อสุดท้าย</li>
-	<li>นำคำตอบของปริศนาข้อสุดท้าย ใส่เป็นรหัสผ่านประตูเพื่อไปด่านถัดไป</li>
-</ol>
-
-<Button href='/round1/puzzles'>
-	<Label>เริ่มเลย!</Label>
-</Button>
-
-<h1>วิธีตอบ</h1>
-<ol>
-	<li>คำตอบเป็นภาษาอังกฤษ (A-Z) 5 ตัวอักษรทุกข้อ โดยจะพิมพ์ตอบด้วยตัวใหญ่หรือเล็กก็ได้</li>
-	<li>ใช้ข้อมูลจากในงาน Thailand Board Game Show 2021 และจากตารางตัวอักษร 5x5 เท่านั้น ไม่ต้อง Google หาข้อมูล</li> 
-	<li>ในแต่ละข้อ ถ้าแก้ปริศนาถูก จะได้ตำแหน่งในตาราง 5 ช่อง เป็นตัวอักษร 5 ตัว</li>
-	<li>อ่านตัวอักษรบนลงล่าง หรือซ้ายไปขวา อย่างใดอย่างหนึ่ง จะได้คำตอบของข้อนั้น</li>
-</ol>
-
-<h1>ข้อแนะนำ</h1>
-<ol>
-	<li>แนะนำให้จดคำตอบของทุกข้อเก็บไว้ อาจเป็นประโยชน์</li>
-</ol>

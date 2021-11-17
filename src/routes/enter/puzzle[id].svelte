@@ -69,9 +69,12 @@
 <div class='main'>
 	<span style="text-alignt: center; width: 90%;">
 		{#if loaded}
-			<img src={iconurl} style='width: 100%' alt="puzzle"/>
+			<img src={iconurl} style='max-height: 90vh' alt="puzzle"/>
 		{/if}
 	</span>
+	{#if puzzleId === 2}
+		<a href='https://puzz.link/p?numlin/9/9/h1j32j4l5v67o2g4l7r3j165i'>คลิกที่นี่เพื่อเล่นบนเว็บ</a>
+	{/if}
 	<span style="text-alignt: center; vertical-align: middle">
 		<Textfield variant="outlined" bind:value={answer} on:keydown={keyPressed} disabled={solved}/>
 		{#if solved}

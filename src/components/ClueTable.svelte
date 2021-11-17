@@ -19,6 +19,7 @@
 	var stateColors = ['primary', 'secondary']
 	var showTable = true
 	var toggleButtonText =['ซ่อนตาราง', 'แสดงตาราง']
+	var buttonIcon = ['visibility_off', 'visibility']
 	
 	function flipState(i,j){
 		letterStates[i][j] = (letterStates[i][j] + 1) % stateColors.length // TODO: 3 states?
@@ -50,7 +51,7 @@
 	</table>
 	<span style="display: flex; align-items: center; justify-content: center">
 		<Button on:click={()=>showTable = !showTable} color='secondary'>
-			<Icon class="material-icons" aria-hidden="true">visibility</Icon>
+			<Icon class="material-icons" aria-hidden="true">{buttonIcon[+!showTable]}</Icon>
 			<Label>{toggleButtonText[+!showTable]}</Label>
 		</Button>
 		<Button on:click={clearMarks} color='secondary'>

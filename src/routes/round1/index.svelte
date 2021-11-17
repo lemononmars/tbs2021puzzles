@@ -1,4 +1,5 @@
 <script>
+	import Button, { Label } from '@smui/button';
 </script>
 
 <div style='text-align:center'>
@@ -16,6 +17,10 @@
 	<li>นำคำตอบของปริศนาทั้ง 5 ข้อมาอ่านเรียงกัน เพื่อแก้ปริศนาข้อสุดท้าย</li>
 	<li>นำคำตอบของปริศนาข้อสุดท้าย ใส่เป็นรหัสผ่านประตูเพื่อไปด่านถัดไป</li>
 </ol>
+
+<Button href='/round1/puzzles'>
+	<Label>เริ่มเลย!</Label>
+</Button>
 
 <h1>วิธีตอบ</h1>
 <ol>

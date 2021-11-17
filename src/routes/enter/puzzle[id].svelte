@@ -67,9 +67,9 @@
  </Snackbar>
 
 <div class='main'>
-	<span style="text-alignt: center;">
+	<span style="text-alignt: center; width: 90%;">
 		{#if loaded}
-			<img src={iconurl} alt="puzzle"/>
+			<img src={iconurl} style='width: 100%' alt="puzzle"/>
 		{/if}
 	</span>
 	<span style="text-alignt: center; vertical-align: middle">

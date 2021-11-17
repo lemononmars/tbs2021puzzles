@@ -94,11 +94,14 @@
 				</span>
 			{/each}
 		{:else}
-			<h1>ปริศนาข้อสุดท้าย</h1>
+		<h1>ปริศนาข้อสุดท้าย</h1>
+		<img src={'/enter/final.png'} height="400px" width="auto" alt="final puzzle"/>
+		<span>
 			<Textfield variant="outlined" bind:value={answers[4]} on:keydown={keyPressed} disabled={solved[4]}/>
 			<Button on:click={() => submit(4)} variant="raised">
 				<Label>ส่งคำตอบ</Label>
 			</Button>
+		</span>
 		{/if}
 	{:else}
 		ยินดีด้วย!!!

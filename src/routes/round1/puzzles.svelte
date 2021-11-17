@@ -1,14 +1,15 @@
 <script lang="ts">
-	import Card, {Content, Actions,} from '@smui/card';
+	import Card, {Content, Actions} from '@smui/card';
 	import ClueTable from '../../components/ClueTable.svelte';
-	import Select, { Option } from '@smui/select';
 	import Button, { Label } from '@smui/button';
+	import Drawer, {AppContent, Content, Header, Title} from '@smui/drawer';
+	import List, { Item, Text, Graphic } from '@smui/list';
 
-	let activePuzzle = 0
+	let activePuzzle = -1
 	let activeSection = 0
 	const iconurls = [0,1,2,3,4,5].map(x => `./round1/puzzleicon${x+1}.png`)
 
-	const sectionTitles = ['วิธีหาเบาะแส', 'วิธีแก้ปริศนา', 'วิธีอ่านคำตอบ']
+	const sectionTitles = ['วิธีหาข้อมูล', 'วิธีแก้ปริศนา', 'วิธีอ่านคำตอบ']
 
 	var puzzleTitles = [0,1,2,3,4].map(x => `ปริศนาข้อที่ ${x+1}`)
 	puzzleTitles = [... puzzleTitles, `ปริศนาข้อสุดท้าย`]
@@ -44,42 +45,80 @@
 			'อ่านตัวอักษรตามคำสั่ง จะได้ 5 ตัว เรียงจากซ้ายไปขวา จะได้คำตอบสุดท้าย'
 		],
 	]
+
+	function setActive(act: number){
+		activePuzzle = act
+		activeSection = 0
+	}
 </script>
 
 <div class = 'main'>
 	<ClueTable/>
-
-	<Select variant="outlined" bind:value={activePuzzle} on:SMUI:action={()=>(activeSection = 0)}>
-		<Option value="0" selected>เลือกปริศนา</Option>
-		{#each [1,2,3,4,5,6] as id}
-			<Option value={id}> 
-				<img src={iconurls[id-1]} alt='puzzle icon'/> {puzzleTitles[id-1]}
-			</Option>
-		{/each}
-		<svelte:fragment slot="helperText">เลือกปริศนา</svelte:fragment>
-	</Select>
- {#if activePuzzle > 0}
- 	<div class="card-display" style='width:100%'>
-		<div class="card-container">
-			<Card>
-				<Content>
-					<span><img src={iconurls[activePuzzle-1]} alt='puzzle icon'/> {puzzleTitles[activePuzzle-1]}</span>
-				</Content>
-				{#each sectionTitles as title, i}
-					{#if activeSection >= i}
-					<Actions fullBleed>
-						<Button on:click={() => activeSection=i+1}>
-							<Label><h2>{title}</h2></Label>
-							<i class="material-icons" aria-hidden="true">expand_more</i>
-						</Button>
-					</Actions>
-					{/if}
-					{#if activeSection > i}
-					<Content>{@html puzzles[activePuzzle-1][i]}</Content>
-					{/if}
+	<div class="drawer-container">
+		<Drawer>
+		  <Header>
+			 <Title>เลือกปริศนา</Title>
+		  </Header>
+		  <Content>
+			 <List>
+				{#each Array(6) as _unused, id}
+				<Item
+				  href="javascript:void(0)"
+				  on:click={() => setActive(id)}
+				  activated={activePuzzle === id}
+				>
+					<Graphic style={`background-image: url(${iconurls[id]})`}/>
+					<Text>{puzzleTitles[id]}</Text>
+				</Item>
 				{/each}
-			</Card>
-		</div>
+			 </List>
+		  </Content>
+		</Drawer>
+	  
+		<AppContent class="app-content">
+		  <main class="main-content">
+			{#if activePuzzle >= 0}
+				<div class="card-display" style='width:100%'>
+					<div class="card-container">
+						<Card>
+							{#each sectionTitles as title, i}
+								{#if activeSection >= i}
+								<Actions fullBleed>
+									<Button on:click={() => activeSection+=(activeSection <= i?1: 0)}>
+										<Label><h2>{title}</h2></Label>
+										<i class="material-icons" aria-hidden="true">expand_more</i>
+									</Button>
+								</Actions>
+								{/if}
+								{#if activeSection > i}
+								<Content>{@html puzzles[activePuzzle][i]}</Content>
+								{/if}
+							{/each}
+						</Card>
+					</div>
+				</div>
+			{/if}
+		  </main>
+		</AppContent>
 	</div>
- {/if}
 </div>
+
+<style>
+	.drawer-container {
+	  position: relative;
+	  display: flex;
+	  height: 400px;
+	  border: 1px solid
+		 var(--mdc-theme-text-hint-on-background, rgba(0, 0, 0, 0.1));
+	  overflow: hidden;
+	  z-index: 0;
+	}
+
+	.main-content {
+    overflow: auto;
+    padding: 10px;
+    height: 100%;
+	 width: clamp(300px, 600px, 600px);
+    box-sizing: border-box;
+  }
+</style>

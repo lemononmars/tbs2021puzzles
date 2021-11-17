@@ -35,11 +35,21 @@ code {
    flex-direction: column;
    justify-content:center;
    align-items: center;
-   width: clamp(300px, 50%, 800px);
+   width: clamp(300px, 90%, 1200px);
+}
+
+img {
+	max-height: 80%;
+	width: auto
 }
 
 @media (min-width: 400px) {
 	body {
 		font-size: 16px;
+	}
+
+	img{
+		max-width: 100%;
+		height: auto
 	}
 }

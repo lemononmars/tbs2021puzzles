@@ -5,6 +5,9 @@ import http from 'http';
 import polka from 'polka';
 import sirv from 'sirv';
 import socketIo from 'socket.io';
+import {WebhookClient} from 'discord.js' 
+import {herokuDB, webhookId, webhookToken, solution} from "./config.json";
+const webhook = new WebhookClient({id: webhookId, token:webhookToken})
 
 const { PORT, NODE_ENV } = process.env;
 const dev = NODE_ENV === 'development';
@@ -32,7 +35,7 @@ const io = socketIo(server, {
 
 // heroku postgres sql
 import { Client } from 'pg';
-process.env.DATABASE_URL = 'postgres://dozphbaclsjpzh:75fc623b54e01dd23610b4184c1c149a7c84377cd27a31bb4d583738cb6bcfb5@ec2-35-168-65-132.compute-1.amazonaws.com:5432/d3bo1faurltsbj'
+process.env.DATABASE_URL = herokuDB
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -50,10 +53,6 @@ client.connect(function(err){
 });
 
 io.on('connection', function(socket){
-	const solution = [ //super secret
-		['READS','UNDER','CELLS','TAKEN','TWICE','ENTER'],
-		['SKIP', 'ROLL', 'DRAW', 'PICK', 'PRIZE']
-	]
 
 	socket.on('submit answer', (data, verify) =>{
 		var returnResult = {
@@ -71,6 +70,9 @@ io.on('connection', function(socket){
 		returnResult.isCorrect = isCorrect
 		const column = isCorrect? 'correct':'incorrect' // for logging
 		const answerLogIndex = data.id + 5*data.round // add 5 for round 2
+
+		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1 - data.round*6} - ${isCorrect? ':white_check_mark:':cleanAnswer + ':x:'}`
+		webhook.send(messageString)
 		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${answerLogIndex}`, (err)=>{
 			if(err) throw err
 		})
@@ -101,6 +103,8 @@ io.on('connection', function(socket){
 		client.query(`SELECT name FROM leaderboard${data.round+1}`, (err, result) => {
 			if(err) throw err
 			res.ranking = result.rows.length
+
+			webhook.send(`${data.user} :trophy: Round ${data.round+1} Rank ${res.ranking}`)
 			callback(res)
 		})
 	})

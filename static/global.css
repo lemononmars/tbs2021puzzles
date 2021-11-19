@@ -35,7 +35,6 @@ code {
    flex-direction: column;
    justify-content:center;
    align-items: center;
-   width: clamp(300px, 90%, 1200px);
 }
 
 .flex-row{
@@ -57,10 +56,5 @@ code {
 @media (min-width: 400px) {
 	body {
 		font-size: 16px;
-	}
-
-	img{
-		max-width: 100%;
-		height: auto
 	}
 }

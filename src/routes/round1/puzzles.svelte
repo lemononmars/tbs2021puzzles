@@ -144,45 +144,43 @@
 		</Drawer>
 	  
 		<AppContent class="app-content">
-		  <main class="main-content">
+			<main class="main-content">
 				<div class="card-display" style='width:100%'>
-					<div class="card-container">
-						<Card>
-							{#if activePuzzle > 0}
-								<span class='flex-row'>
-									<img src={iconurls[activePuzzle]} alt = 'puzzle icon'/>
-									<Textfield 
-										variant="outlined" 
-										bind:value={answers[activePuzzle-1]} 
-										on:keydown={keyPressed} 
-										disabled={solved[activePuzzle-1]}
-									/>
-										{#if solved[activePuzzle-1]}
-											<Button variant="outlined" disabled>
-												<Label>ถูกต้อง!</Label>
-											</Button>
-										{:else}
-											<Button on:click={() => submit(activePuzzle-1)} variant="raised">
-												<Label>ส่งคำตอบ</Label>
-											</Button>
-										{/if}
-								</span>
-							{/if}
-							{#each sectionTitles as title, i}
-								{#if activeSection >= i}
-								<Actions fullBleed>
-									<Button on:click={() => activeSection+=(activeSection <= i?1: 0)}>
-										<Label><h2>{title}</h2></Label>
-										<i class="material-icons" aria-hidden="true">expand_more</i>
+				<Card>
+					{#if activePuzzle > 0}
+						<span class='flex-row'>
+							<img src={iconurls[activePuzzle]} alt = 'puzzle icon'/>
+							<Textfield 
+								variant="outlined" 
+								bind:value={answers[activePuzzle-1]} 
+								on:keydown={keyPressed} 
+								disabled={solved[activePuzzle-1]}
+							/>
+								{#if solved[activePuzzle-1]}
+									<Button variant="outlined" disabled>
+										<Label>ถูกต้อง!</Label>
 									</Button>
-								</Actions>
+								{:else}
+									<Button on:click={() => submit(activePuzzle-1)} variant="raised">
+										<Label>ส่งคำตอบ</Label>
+									</Button>
 								{/if}
-								{#if activeSection > i}
-								<Content>{@html puzzles[activePuzzle][i]}</Content>
-								{/if}
-							{/each}
-						</Card>
-					</div>
+						</span>
+					{/if}
+					{#each sectionTitles as title, i}
+						{#if activeSection >= i}
+						<Actions fullBleed>
+							<Button on:click={() => activeSection+=(activeSection <= i?1: 0)}>
+								<Label><h2>{title}</h2></Label>
+								<i class="material-icons" aria-hidden="true">expand_more</i>
+							</Button>
+						</Actions>
+						{/if}
+						{#if activeSection > i}
+						<Content>{@html puzzles[activePuzzle][i]}</Content>
+						{/if}
+					{/each}
+				</Card>
 				</div>
 		  </main>
 		</AppContent>
@@ -221,6 +219,7 @@ escapeKeyAction=""
 	  position: relative;
 	  display: flex;
 	  height: 380px;
+	  width: clamp(400px, 800px, 800px);
 	  border: 1px solid
 		 var(--mdc-theme-text-hint-on-background, rgba(0, 0, 0, 0.1));
 	  overflow: hidden;
@@ -231,7 +230,6 @@ escapeKeyAction=""
     overflow: auto;
     padding: 10px;
     height: 100%;
-	 width: clamp(300px, 600px, 600px);
     box-sizing: border-box;
   }
 </style>

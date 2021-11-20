@@ -65,13 +65,13 @@ io.on('connection', function(socket){
 			return;
 		}
 
-		const cleanAnswer = data.answer.trim().toUpperCase()
+		const cleanAnswer = encodeURI(data.answer.trim().toUpperCase())
 		const isCorrect = solution[data.round][data.id] === cleanAnswer 
 		returnResult.isCorrect = isCorrect
 		const column = isCorrect? 'correct':'incorrect' // for logging
-		const answerLogIndex = data.id + 5*data.round // add 5 for round 2
+		const answerLogIndex = data.id + 6*data.round // add 5 for round 2
+		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1} - ${isCorrect? ':white_check_mark:':':x:' + cleanAnswer}`
 
-		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1 - data.round*6} - ${isCorrect? ':white_check_mark:':':x:' + cleanAnswer}`
 		webhook.send(messageString)
 		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${answerLogIndex}`, (err)=>{
 			if(err) throw err
@@ -92,6 +92,8 @@ io.on('connection', function(socket){
 		if(data.answer != solution[data.round].slice(-1)[0])
 			return callback(res)
 
+		data.user = encodeURI(data.user)
+		data.email = encodeURI(data.email)
 		res.success = true
 		const d = new Date()
 		var timeString = d.toLocaleString('th-TH')

@@ -71,7 +71,7 @@ io.on('connection', function(socket){
 		const column = isCorrect? 'correct':'incorrect' // for logging
 		const answerLogIndex = data.id + 5*data.round // add 5 for round 2
 
-		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1 - data.round*6} - ${isCorrect? ':white_check_mark:':cleanAnswer + ':x:'}`
+		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1 - data.round*6} - ${isCorrect? ':white_check_mark:':':x:' + cleanAnswer}`
 		webhook.send(messageString)
 		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${answerLogIndex}`, (err)=>{
 			if(err) throw err

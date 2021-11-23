@@ -54,14 +54,14 @@ client.connect(function(err){
 
 io.on('connection', function(socket){
 
-	socket.on('submit answer', (data, verify) =>{
+	socket.on('submit answer', (data, callback) =>{
 		var returnResult = {
 			isCorrect: false, 
 			isFinished: false
 		}
 
 		if(!data || !data.answer) {
-			verify(returnResult)
+			callback(returnResult)
 			return;
 		}
 
@@ -80,7 +80,7 @@ io.on('connection', function(socket){
 		if (isCorrect)
 			if((data.round == 0 && data.id == 5) || (data.round == 1 && data.id == 4))
 				returnResult.isFinished = true
-		verify(returnResult)
+		callback(returnResult)
 	})
 
 	socket.on('add to leaderboard', async (data, callback) =>{
@@ -124,6 +124,12 @@ io.on('connection', function(socket){
 			callback(result.rows)
 		 })
 	})
+
+	socket.on('submit rating', (data)=>{
+		client.query(`UPDATE answerlog SET rating = rating + ${data.rating}, num = num + 1 WHERE id = ${data.puzzleId}`, (err)=>{
+			if(err) throw err
+		})
+	})
 })
 
 function clearTables(){
@@ -139,11 +145,11 @@ function deleteTables(){
 }
 
 function createTables(){
-	//client.query(`CREATE TABLE leaderboard1 (name VARCHAR, email VARCHAR, time VARCHAR)`)
-	//client.query(`CREATE TABLE leaderboard2 (name VARCHAR, email VARCHAR, time VARCHAR)`)
-	client.query(`CREATE TABLE answerlog (id NUMERIC, correct NUMERIC, incorrect NUMERIC)`)
+	client.query(`CREATE TABLE leaderboard1 (name VARCHAR, email VARCHAR, time VARCHAR)`)
+	client.query(`CREATE TABLE leaderboard2 (name VARCHAR, email VARCHAR, time VARCHAR)`)
+	client.query(`CREATE TABLE answerlog (id NUMERIC, correct NUMERIC, incorrect NUMERIC, fun NUMERIC, difficulty NUMERIC, num NUMERIC)`)
 	for(var i = 0; i < 11; i ++)
-		client.query(`INSERT INTO answerlog VALUES ('${i}', '0','0')`)
+		client.query(`INSERT INTO answerlog VALUES ('${i}', '0','0', '0', '0')`)
 }
 
 function saveLogs(){

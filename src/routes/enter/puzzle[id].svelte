@@ -1,5 +1,5 @@
 <script lang=ts >
-	import {store} from '../../stores/save'
+	import {store, timeStore, currentTime} from '../../stores/save'
 	import {onMount} from 'svelte'
 	import Textfield from '@smui/textfield'
 	import Button, { Label } from '@smui/button';
@@ -21,12 +21,16 @@
 	let answer = ''
 	let iconurl = `./enter/puzzle${puzzleId+1}.png`
 	let loaded = false
+	let timeStarted = 0
+	let waitTime = 1200000 // 20 minutes = 1200000
+	$: timeLeft = waitTime - $currentTime.getTime() + timeStarted
+	$: timeMinuteString = timeLeft < 0 || Math.floor(timeLeft / 60000) === 0? '':`${Math.floor(timeLeft / 60000)} นาที`
+	$: timeLeftString = timeLeft < 0? '0': `${timeMinuteString} ${Math.floor((timeLeft % 60000)/1000)} วินาที`
 
 	onMount(async() => {
 		store.useLocalStorage()
 		const submission = {round:1, answers: $store.round2answers}
 		socket.emit('verify save', submission, function(s: boolean[], a: string[]){
-			console.log(a)
 			solved = s[puzzleId] // take only the current one
 			answer = a[puzzleId]
 		})
@@ -35,6 +39,11 @@
 
 		const waitimage = await fetch(`./enter/puzzle${puzzleId}.png`) //there should be a better way....
 		loaded = true
+
+		timeStore.useLocalStorage()
+		if(!$timeStore.round2time[puzzleId] || $timeStore.round2time[puzzleId] === 0)
+			$timeStore.round2time[puzzleId] = $currentTime.getTime()
+		timeStarted = $timeStore.round2time[puzzleId]
 	})
 
 	function submit(){
@@ -53,14 +62,38 @@
 		})
 	}
 
+	function revealHint(){
+		// too lazy to hide in server....
+		const hintStrings = [
+			`ภาพที่เห็นเป็นส่วนหนึ่งของในงาน Thailand Board Game Show 2021 <br> 
+			คุ้น ๆ กันไหมว่ามันอยู่ตรงไหนบ้าง? <br> 
+			เติมคำในช่องว่าง แล้วลองเทียบตัวอักษรกับ EMOJI ดูสิ`,
+			`4 อักษรงั้นเหรอ ทำไมเห็นแค่ 2 ล่ะ ?? <br> 
+			อักษร 1 ตัว ค่อนข้างต่างไปจากพวกหน่อย <br>
+			อักษรอีก 1 ตัวต้องมองทั้งกระดานถึงจะเห็น`,
+			`เลข 4 ลากผ่านตัว E <br> 
+			แต่เลข 2 ไม่ได้ลากผ่านตัว A`,
+			`เพลงนี้เป็นเพลงที่คุณคุ้นเคยดีตอนเริ่มท่อง "อักษรภาษาอังกฤษ" <br> 
+			เทียบเนื้อเพลงกับตัวโน้ตดูสิ <br>
+			(ลองดีดเปียโนที่อยู่ข้าง ๆ อาจจะช่วยให้นึกชื่อเพลงออกได้นะ)`,
+			`คุณไขปริศนาด่านที่ 1 รอบ ๆ งานครบแล้วหรือยัง? <br> 
+			หากยัง คุณควรไปไขปริศนาให้ครบก่อน <br> 
+			จากนั้นลองดูในตาราง 5x5 ของด่านที่ 1 จะมีตำแหน่งของตัวอักษรที่ยังไม่ได้ถูกใช้อยู่ <br> ส่วนภาพปริศนาในข้อนี้ 1 ช่องเท่ากับอักษรภาษาอังกฤษ 1 ตัว <br> คุณผ่านมาแล้วทั้งนั้นแหละคุ้นเคยกันดีไม่ยากใช่ไหมล่ะ !!`
+		]
+		snackbarLabel = hintStrings[puzzleId]
+		snackbarWithClose.open()
+	}
+
 	function keyPressed(e){
    	if (e.keyCode === 13)
 			submit();
   	}
 </script>
 
+{@debug timeStarted, timeLeft, $timeStore}
+
 <Snackbar bind:this={snackbarWithClose}>
-	<Label>{snackbarLabel}</Label>
+	<Label>{@html snackbarLabel}</Label>
 	<Actions>
 	  <IconButton class="material-icons" title="Dismiss">close</IconButton>
 	</Actions>
@@ -84,6 +117,15 @@
 			<Button on:click={() => submit()} variant="raised">
 				<Label>ส่งคำตอบ</Label>
 			</Button>
+			{#if timeLeft < 0}
+				<Button on:click={() => revealHint()} variant="raised" color="secondary">
+					<Label>ขอคำใบ้</Label>
+				</Button>
+			{:else}
+				<Button disabled>
+					<Label>คำใบ้จะปรากฏใน {timeLeftString} </Label>
+				</Button>
+			{/if}
 		{/if}
 	<span>
 </div>

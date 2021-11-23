@@ -1,5 +1,5 @@
 <script lang=ts >
-	import {store} from '../../stores/save'
+	import {store, timeStore, currentTime} from '../../stores/save'
 	import {onMount} from 'svelte'
 	import Textfield from '@smui/textfield'
 	import Button, { Label } from '@smui/button';
@@ -21,6 +21,11 @@
 	let userInfo = {username: '', email: ''}
 	let submitInfo = false
 	let ranking = -1
+	let timeStarted = 0
+	let waitTime = 1800000 // 30 minutes = 1200000
+	$: timeLeft = waitTime - $currentTime.getTime() + timeStarted
+	$: timeMinuteString = timeLeft < 0 || Math.floor(timeLeft / 60000) === 0? '':`${Math.floor(timeLeft / 60000)} นาที`
+	$: timeLeftString = timeLeft < 0? '0': `${timeMinuteString} ${Math.floor((timeLeft % 60000)/1000)} วินาที`
 
 	onMount(async() => {
 		store.useLocalStorage()
@@ -32,6 +37,11 @@
 		submitInfo = solved[4]
 
 		const waitimage = await fetch(`./enter/puzzle1.png`) //there should be a better way....
+
+		timeStore.useLocalStorage()
+		if(solved[4] && (!$timeStore.round2time[4] || $timeStore.round2time[4] === 0))
+			$timeStore.round2time[4] = $currentTime.getTime()
+		timeStarted = $timeStore.round2time[4]
 	})
 
 	function submit(id: number){
@@ -43,11 +53,6 @@
 				$store.round2answers[id] = answers[id]
 				solved[id] = true
 				snackbarLabel = 'ถูกต้อง!'
-				const hashEscape = '%23'
-				if(id === 4) { //congratulatory message
-					finalRanking = res.ranking
-					fburl = `https://tbs2021puzzles.herokuapp.com/round1&display=popup&quote=แก้ปริศนาเสร็จเป็นคนที่ ${finalRanking}&hashtag=${hashEscape}tbs_2021`
-				}
 			}	
 			else{
 				snackbarLabel = 'ยังไม่ถูก'
@@ -68,6 +73,8 @@
 				snackbarLabel = 'บันทึกข้อมูลแล้ว'
 				submitInfo = true
 				ranking = res.ranking
+				const hashEscape = '%23'
+				fburl = `https://tbs2021puzzles.herokuapp.com/round1&display=popup&quote=แก้ปริศนาเสร็จเป็นคนที่ ${ranking}&hashtag=${hashEscape}tbs_2021`
 			}
 			else {
 				snackbarLabel = 'คำตอบไม่ถูกต้อง ลองตอบใหม่'
@@ -75,10 +82,20 @@
 			snackbarWithClose.open()
 		})
 	}
+
+	function revealHint(){
+		const hintString = 
+			`คุณไขปริศนาด่านที่ 1 รอบ ๆ งานครบแล้วหรือยัง? <br> 
+			หากยัง คุณควรไปไขปริศนาให้ครบก่อน <br> 
+			จากนั้นลองดูในตาราง 5x5 ของด่านที่ 1 จะมีตำแหน่งของตัวอักษรที่ยังไม่ได้ถูกใช้อยู่ <br> ส่วนภาพปริศนาในข้อนี้ 1 ช่องเท่ากับอักษรภาษาอังกฤษ 1 ตัว <br> คุณผ่านมาแล้วทั้งนั้นแหละคุ้นเคยกันดีไม่ยากใช่ไหมล่ะ !!`
+		snackbarLabel = hintString
+		snackbarWithClose.open()
+	}
+
 </script>
 
 <Snackbar bind:this={snackbarWithClose}>
-	<Label>{snackbarLabel}</Label>
+	<Label>{@html snackbarLabel}</Label>
 	<Actions>
 	  <IconButton class="material-icons" title="Dismiss">close</IconButton>
 	</Actions>
@@ -104,8 +121,18 @@
 				</span>
 			{/each}
 		{:else}
-		<h2>ปริศนาข้อสุดท้าย</h2>
-		<img src={'/enter/final.png'} style='max-height: 80vh; width: auto' alt="final puzzle"/>
+		<img src={'/enter/final.png'} style='max-height: 70vh; width: auto' alt="final puzzle"/>
+		<span>
+			{#if timeLeft < 0}
+				<Button on:click={() => revealHint()} variant="raised" color="secondary">
+					<Label>ขอคำใบ้</Label>
+				</Button>
+			{:else}
+				<Button disabled>
+					<Label>คำใบ้จะปรากฏใน {timeLeftString} </Label>
+				</Button>
+			{/if}
+		</span>
 		<span>
 			<Textfield variant="outlined" bind:value={answers[4]} on:keydown={keyPressed} disabled={solved[4]}/>
 			<Button on:click={() => submit(4)} variant="raised">
@@ -128,7 +155,7 @@
 				แชร์ให้คนอื่นรู้ว่าเราเล่นจบแล้ว!
 				<span>
 					<Facebook class="share-button" url={fburl} />
-					<Twitter class="share-button" text="แก้ปริศนาได้เป็นคนที่ {ranking} Thailand Board Game Show 2021 Puzzles" hashtags="tbs_2021,svelte"/>
+					<Twitter class="share-button" text="แก้ปริศนาได้เป็นคนที่ {ranking} Thailand Board Game Show 2021 Puzzles" hashtags="tbs_2021, codebreaker_thailand"/>
 				</span>
 			{/if}
 		</div>

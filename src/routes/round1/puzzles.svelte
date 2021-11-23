@@ -145,7 +145,7 @@
 	  
 		<AppContent class="app-content">
 			<main class="main-content">
-				<div class="card-display" style='width:100%'>
+				<div class="card-display">
 				<Card>
 					{#if activePuzzle > 0}
 						<span class='flex-row'>
@@ -199,19 +199,19 @@ bind:open={dialogOpen} aria-labelledby="simple-title" aria-describedby="simple-c
 scrimClickAction=""
 escapeKeyAction=""
 >
-<Title id="simple-title">🎉ขอแสดงความยินดีด้วย🎉</Title>
-<Content id="simple-content">
-	<div>
-		นำคำตอบ {answers[5]} ไปใส่ในประตู เพื่อไปด่านต่อไป<br><br>
-		ใส่ชื่อเพื่อแสดงในตารางอันดับ<br>
-		<Textfield variant="outlined" label="ชื่อ" bind:value={user}/><br/>
-	</div>
-	<Actions>
-		<Button variant="outlined" on:click={submitFinal}>
-			<Label>ส่งข้อมูล</Label>
-		</Button>
-	</Actions>
-</Content>
+	<Title id="simple-title">🎉ขอแสดงความยินดีด้วย🎉</Title>
+	<Content id="simple-content">
+		<div>
+			นำคำตอบ {answers[5]} ไปใส่ในประตู เพื่อไปด่านต่อไป<br><br>
+			ใส่ชื่อเพื่อแสดงในตารางอันดับ<br>
+			<Textfield variant="outlined" label="ชื่อ" bind:value={user}/><br/>
+		</div>
+		<Actions>
+			<Button variant="outlined" on:click={submitFinal}>
+				<Label>ส่งข้อมูล</Label>
+			</Button>
+		</Actions>
+	</Content>
 </Dialog>
 
 <style>

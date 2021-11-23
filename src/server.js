@@ -49,7 +49,7 @@ client.connect(function(err){
 	//deleteTables()
 	//createTables()
 	//clearTables()
-	//saveLogs()
+	saveLogs()
 });
 
 io.on('connection', function(socket){
@@ -57,7 +57,8 @@ io.on('connection', function(socket){
 	socket.on('submit answer', (data, callback) =>{
 		var returnResult = {
 			isCorrect: false, 
-			isFinished: false
+			isFinished: false,
+			hintMessage: ''
 		}
 
 		if(!data || !data.answer) {
@@ -69,11 +70,10 @@ io.on('connection', function(socket){
 		const isCorrect = solution[data.round][data.id] === cleanAnswer 
 		returnResult.isCorrect = isCorrect
 		const column = isCorrect? 'correct':'incorrect' // for logging
-		const answerLogIndex = data.id + 6*data.round // add 5 for round 2
-		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1} - ${isCorrect? ':white_check_mark:':':x:' + cleanAnswer}`
+		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1} - ${data.alias} > ${isCorrect? ':white_check_mark:':':x:' + cleanAnswer}`
 
 		webhook.send(messageString)
-		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${answerLogIndex}`, (err)=>{
+		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${toPuzzleIndex(data.round, data.id)}`, (err)=>{
 			if(err) throw err
 		})
 		
@@ -96,7 +96,7 @@ io.on('connection', function(socket){
 		data.email = encodeURI(data.email)
 		res.success = true
 		const d = new Date()
-		var timeString = d.toLocaleString('th-TH')
+		var timeString = d.toLocaleString('th-TH', { timeZone: 'GMT' })
 		let queryString = `INSERT INTO leaderboard${data.round+1} VALUES ('${data.user}', '${data.email}','${timeString}')`
 		client.query(queryString, (err, result) => {
 			if (err) throw err
@@ -106,7 +106,7 @@ io.on('connection', function(socket){
 			if(err) throw err
 			res.ranking = result.rows.length
 
-			webhook.send(`${data.user} :trophy: Round ${data.round+1} Rank ${res.ranking}`)
+			webhook.send(`${data.user} Round ${data.round+1} ${data.round===1? ':trophy:':':trophy::trophy:'} Rank ${res.ranking}`)
 			callback(res)
 		})
 	})
@@ -126,11 +126,20 @@ io.on('connection', function(socket){
 	})
 
 	socket.on('submit rating', (data)=>{
-		client.query(`UPDATE answerlog SET rating = rating + ${data.rating}, num = num + 1 WHERE id = ${data.puzzleId}`, (err)=>{
+		client.query(`UPDATE answerlog SET fun = fun + ${data.rates[0]}, difficulty = difficulty + ${data.rates[1]}, num = num + 1 WHERE id = ${toPuzzleIndex(data.round, data.puzzleId)}`, (err)=>{
 			if(err) throw err
 		})
 	})
+
+	socket.on('submit impression', (data)=>{
+		webhook.send('Final comment:')
+		webhook.send(data)
+	})
 })
+
+function toPuzzleIndex(round, id){
+	return 6*round + id// add 5 for round 2
+}
 
 function clearTables(){
 	client.query(`DELETE FROM leaderboard1`)
@@ -139,17 +148,17 @@ function clearTables(){
 }
 
 function deleteTables(){
-	client.query(`DROP TABLE leaderboard1`)
-	client.query(`DROP TABLE leaderboard2`)
+	//client.query(`DROP TABLE leaderboard1`)
+	//client.query(`DROP TABLE leaderboard2`)
 	client.query(`DROP TABLE answerlog`)
 }
 
 function createTables(){
-	client.query(`CREATE TABLE leaderboard1 (name VARCHAR, email VARCHAR, time VARCHAR)`)
-	client.query(`CREATE TABLE leaderboard2 (name VARCHAR, email VARCHAR, time VARCHAR)`)
+	//client.query(`CREATE TABLE leaderboard1 (name VARCHAR, email VARCHAR, time VARCHAR)`)
+	//client.query(`CREATE TABLE leaderboard2 (name VARCHAR, email VARCHAR, time VARCHAR)`)
 	client.query(`CREATE TABLE answerlog (id NUMERIC, correct NUMERIC, incorrect NUMERIC, fun NUMERIC, difficulty NUMERIC, num NUMERIC)`)
 	for(var i = 0; i < 11; i ++)
-		client.query(`INSERT INTO answerlog VALUES ('${i}', '0','0', '0', '0')`)
+		client.query(`INSERT INTO answerlog VALUES ('${i}', '0','0', '0', '0', '0')`)
 }
 
 function saveLogs(){

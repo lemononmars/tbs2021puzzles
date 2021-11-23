@@ -3,8 +3,6 @@
 	import Button, { Label } from '@smui/button';
 	import Drawer, {AppContent} from '@smui/drawer';
 	import List, { Item, Text} from '@smui/list';
-	import {store} from '../../stores/save'
-	import {onMount} from 'svelte'
 	import ClueTable from '../../components/ClueTable.svelte';
 	import Textfield from '@smui/textfield'
 	import IconButton from '@smui/icon-button';
@@ -13,6 +11,10 @@
 	import Snackbar, {SnackbarComponentDev,} from '@smui/snackbar';
 	let snackbarWithClose: SnackbarComponentDev;
 	let snackbarLabel = ''
+
+	import RatingButton from '../../components/RatingButton.svelte'
+	import {store} from '../../stores/save'
+	import {onMount} from 'svelte'
 	import io from 'socket.io-client';
 	const socket = io()
 
@@ -79,7 +81,7 @@
 
 	let ranking = -1
 	function submit(id: number){
-		var submission = {round: 0, id:id, answer: answers[id]}
+		var submission = {round: 0, id:id, answer: answers[id], alias: $store.alias}
 		socket.emit('submit answer', submission, function(res){
 			if(res.isCorrect) {
 				answers[id] = answers[id].trim().toUpperCase()
@@ -112,6 +114,12 @@
 				snackbarWithClose.open()
 			}
 		})
+	}
+
+	function submitRates(event){
+		socket.emit('submit rating', event.detail)
+		snackbarLabel = 'ขอบคุณสำหรับคะแนนครับ'
+		snackbarWithClose.open()
 	}
 
 	function keyPressed(e){
@@ -152,6 +160,7 @@
 							<img src={iconurls[activePuzzle]} alt = 'puzzle icon'/>
 							<Textfield 
 								variant="outlined" 
+								style='max-width: 100px'
 								bind:value={answers[activePuzzle-1]} 
 								on:keydown={keyPressed} 
 								disabled={solved[activePuzzle-1]}
@@ -165,6 +174,11 @@
 										<Label>ส่งคำตอบ</Label>
 									</Button>
 								{/if}
+						</span>
+						<span>
+						{#if solved[activePuzzle-1]}
+							<RatingButton anchor={"BOTTOM_LEFT"} puzzleId={activePuzzle-1} round={1} on:submitRates={submitRates}/>
+						{/if}
 						</span>
 					{/if}
 					{#each sectionTitles as title, i}

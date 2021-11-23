@@ -1,5 +1,5 @@
 <script lang=ts >
-	import {store, timeStore, currentTime} from '../../stores/save'
+	import {store, currentTime} from '../../stores/save'
 	import {onMount} from 'svelte'
 	import Textfield from '@smui/textfield'
 	import Button, { Label } from '@smui/button';
@@ -7,6 +7,8 @@
 	import {Facebook, Twitter} from 'svelte-share-buttons-component';
 
 	let fburl = ''
+	let finalImpression = ''
+	let finalImpressionSubmitted = false
 
 	import Snackbar, {SnackbarComponentDev, Actions} from '@smui/snackbar';
 	let snackbarWithClose: SnackbarComponentDev;
@@ -38,14 +40,13 @@
 
 		const waitimage = await fetch(`./enter/puzzle1.png`) //there should be a better way....
 
-		timeStore.useLocalStorage()
-		if(solved[4] && (!$timeStore.round2time[4] || $timeStore.round2time[4] === 0))
-			$timeStore.round2time[4] = $currentTime.getTime()
-		timeStarted = $timeStore.round2time[4]
+		if(solved[4] && (!$store.round2time[4] || $store.round2time[4] === 0))
+			$store.round2time[4] = $currentTime.getTime()
+		timeStarted = $store.round2time[4]
 	})
 
 	function submit(id: number){
-		var submission = {round: 1, id:id, answer: answers[id]}
+		var submission = {round: 1, id:id, answer: answers[id], alias: $store.alias}
 
 		socket.emit('submit answer', submission, function(res){
 			if(res.isCorrect) {
@@ -92,6 +93,10 @@
 		snackbarWithClose.open()
 	}
 
+	function submitFinalImpression(){
+		finalImpressionSubmitted = true
+		socket.emit('submit impression', finalImpression)
+	}
 </script>
 
 <Snackbar bind:this={snackbarWithClose}>
@@ -145,7 +150,7 @@
 			<h1>ยินดีด้วย!!!</h1>
 			{#if !submitInfo}
 				<Textfield variant="outlined" bind:value={userInfo.username} label="ชื่อใน gather.town" required/>
-				<Textfield variant="outlined" bind:value={userInfo.email} label="email ที่ใช้สมัคร" required/>
+				<Textfield variant="outlined" bind:value={userInfo.email} label="email ที่ใช้สมัคร" input$autocomplete="email" required/>
 				<Button on:click={submitFinal} variant="raised">
 					<Label>ส่งข้อมูล</Label>
 				</Button>
@@ -157,6 +162,21 @@
 					<Facebook class="share-button" url={fburl} />
 					<Twitter class="share-button" text="แก้ปริศนาได้เป็นคนที่ {ranking} Thailand Board Game Show 2021 Puzzles" hashtags="tbs_2021, codebreaker_thailand"/>
 				</span>
+				
+				{#if !finalImpressionSubmitted}
+					<Textfield
+						textarea
+						bind:value={finalImpression}
+						label="อยากบอกอะไรผู้ประดิษฐ์ปริศนาบ้าง"
+						input$rows={4}
+						input$cols={40}
+					/>
+					<Button on:click={submitFinalImpression} variant="raised">
+						<Label>ส่งข้อมูล</Label>
+					</Button>
+				{:else}
+					<h2>ขอบคุณครับ แล้วมาแก้ปริศนาด้วยกันใหม่ในโอกาสหน้า</h2>
+				{/if}
 			{/if}
 		</div>
 	{/if}

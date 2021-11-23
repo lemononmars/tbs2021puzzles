@@ -1,5 +1,6 @@
 <script lang=ts >
-	import {store, timeStore, currentTime} from '../../stores/save'
+	import {store, currentTime} from '../../stores/save'
+	import RatingButton from '../../components/RatingButton.svelte';
 	import {onMount} from 'svelte'
 	import Textfield from '@smui/textfield'
 	import Button, { Label } from '@smui/button';
@@ -40,14 +41,13 @@
 		const waitimage = await fetch(`./enter/puzzle${puzzleId}.png`) //there should be a better way....
 		loaded = true
 
-		timeStore.useLocalStorage()
-		if(!$timeStore.round2time[puzzleId] || $timeStore.round2time[puzzleId] === 0)
-			$timeStore.round2time[puzzleId] = $currentTime.getTime()
-		timeStarted = $timeStore.round2time[puzzleId]
+		if(!$store.round2time[puzzleId] || $store.round2time[puzzleId] === 0)
+			$store.round2time[puzzleId] = $currentTime.getTime()
+		timeStarted = $store.round2time[puzzleId]
 	})
 
 	function submit(){
-		var submission = {round: 1, id:puzzleId, answer: answer}
+		var submission = {round: 1, id:puzzleId, answer: answer, alias: $store.alias}
 		socket.emit('submit answer', submission, function(res){
 			if(res.isCorrect) {
 				answer = answer.trim().toUpperCase()
@@ -60,6 +60,12 @@
 			}
 			snackbarWithClose.open()
 		})
+	}
+
+	function submitRates(event){
+		socket.emit('submit rating', event.detail)
+		snackbarLabel = 'ขอบคุณสำหรับคะแนนครับ'
+		snackbarWithClose.open()
 	}
 
 	function revealHint(){
@@ -90,8 +96,6 @@
   	}
 </script>
 
-{@debug timeStarted, timeLeft, $timeStore}
-
 <Snackbar bind:this={snackbarWithClose}>
 	<Label>{@html snackbarLabel}</Label>
 	<Actions>
@@ -113,6 +117,7 @@
 			<Button variant="outlined" disabled>
 				<Label>ถูกต้อง!</Label>
 			</Button>
+			<RatingButton anchor={"BOTTOM_LEFT"} puzzleId={puzzleId} round={2} on:submitRates={submitRates}/>
 		{:else}
 			<Button on:click={() => submit()} variant="raised">
 				<Label>ส่งคำตอบ</Label>

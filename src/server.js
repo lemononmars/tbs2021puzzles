@@ -96,7 +96,7 @@ io.on('connection', function(socket){
 		data.email = encodeURI(data.email)
 		res.success = true
 		const d = new Date()
-		var timeString = d.toLocaleString('th-TH', { timeZone: 'GMT' })
+		var timeString = d.toLocaleString('th-TH', { timeZone: 'UTC' })
 		let queryString = `INSERT INTO leaderboard${data.round+1} VALUES ('${data.user}', '${data.email}','${timeString}')`
 		client.query(queryString, (err, result) => {
 			if (err) throw err

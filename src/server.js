@@ -46,10 +46,9 @@ const client = new Client({
 client.connect(function(err){
 	if (err) throw err;
 	//add command to be execute once
-	//deleteTables()
-	//createTables()
-	//clearTables()
-	saveLogs()
+	//clearLeaderboards()
+	//resetLogs()
+	//saveLogs()
 });
 
 io.on('connection', function(socket){
@@ -73,7 +72,7 @@ io.on('connection', function(socket){
 		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1} - ${data.alias} > ${isCorrect? ':white_check_mark:':':x:' + cleanAnswer}`
 
 		webhook.send(messageString)
-		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE id = ${toPuzzleIndex(data.round, data.id)}`, (err)=>{
+		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE (round = ${data.round} AND id = ${data.id})`, (err)=>{
 			if(err) throw err
 		})
 		
@@ -126,7 +125,7 @@ io.on('connection', function(socket){
 	})
 
 	socket.on('submit rating', (data)=>{
-		client.query(`UPDATE answerlog SET fun = fun + ${data.rates[0]}, difficulty = difficulty + ${data.rates[1]}, num = num + 1 WHERE id = ${toPuzzleIndex(data.round, data.puzzleId)}`, (err)=>{
+		client.query(`UPDATE answerlog SET fun = fun + ${data.rates[0]}, difficulty = difficulty + ${data.rates[1]}, num = num + 1 WHERE (round = ${data.round} AND id = ${data.puzzleId})`, (err)=>{
 			if(err) throw err
 		})
 	})
@@ -137,28 +136,21 @@ io.on('connection', function(socket){
 	})
 })
 
-function toPuzzleIndex(round, id){
-	return 6*round + id// add 5 for round 2
+function clearLeaderboards(){
+	client.query(`DELETE FROM leaderboard1`)
+	client.query(`DELETE FROM leaderboard2`)
 }
 
-function clearTables(){
-	//client.query(`DELETE FROM leaderboard1`)
-	//client.query(`DELETE FROM leaderboard2`)
-	client.query(`DELETE FROM answerlog`)
-}
-
-function deleteTables(){
-	//client.query(`DROP TABLE leaderboard1`)
-	//client.query(`DROP TABLE leaderboard2`)
+function resetLogs(){
 	client.query(`DROP TABLE answerlog`)
-}
+	client.query(`CREATE TABLE answerlog (round NUMERIC, id NUMERIC, correct NUMERIC, incorrect NUMERIC, fun NUMERIC, difficulty NUMERIC, num NUMERIC)`)
 
-function createTables(){
-	//client.query(`CREATE TABLE leaderboard1 (name VARCHAR, email VARCHAR, time VARCHAR)`)
-	//client.query(`CREATE TABLE leaderboard2 (name VARCHAR, email VARCHAR, time VARCHAR)`)
-	client.query(`CREATE TABLE answerlog (id NUMERIC, correct NUMERIC, incorrect NUMERIC, fun NUMERIC, difficulty NUMERIC, num NUMERIC)`)
-	for(var i = 0; i < 11; i ++)
-		client.query(`INSERT INTO answerlog VALUES ('${i}', '0','0', '0', '0', '0')`)
+	const NUM_PUZZ_ROUND_1 = 6
+	const NUM_PUZZ_ROUND_2 = 5
+	for(var i = 0; i < NUM_PUZZ_ROUND_1; i ++)
+		client.query(`INSERT INTO answerlog VALUES ('0', '${i}', '0','0', '0', '0', '0')`)
+	for(var i = 0; i < NUM_PUZZ_ROUND_2; i ++)
+		client.query(`INSERT INTO answerlog VALUES ('1', '${i}', '0','0', '0', '0', '0')`)
 }
 
 function saveLogs(){

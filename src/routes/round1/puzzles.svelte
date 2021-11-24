@@ -152,9 +152,9 @@
 		</Drawer>
 	  
 		<AppContent class="app-content">
-			<main class="main-content">
+			<div class="main-content">
 				<div class="card-container">
-				<Card style="width:auto">
+				<Card>
 					{#if activePuzzle > 0}
 						<span class='flex-row'>
 							<img src={iconurls[activePuzzle]} alt = 'puzzle icon'/>
@@ -197,7 +197,7 @@
 					{/each}
 				</Card>
 				</div>
-		  </main>
+			</div>
 		</AppContent>
 	</div>
 </div>
@@ -244,11 +244,12 @@ escapeKeyAction=""
 	.main-content {
     overflow: auto;
     padding: 10px;
+	 width: 100%;
     height: 100%;
     box-sizing: border-box;
   }
 
   .card-container{
-	  max-width:100%
+	  width: 470px
   }
 </style>

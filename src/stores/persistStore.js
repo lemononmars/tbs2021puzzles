@@ -5,7 +5,7 @@ export const persistStore = (key, initial) =>{
 
   return {subscribe, set, update, useLocalStorage:() => {
     const persist = localStorage.getItem(key)
-    if(persist && persist.alias) {
+    if(persist && JSON.parse(persist).alias) {
       const stored = JSON.parse(persist)
       set(stored)
     }

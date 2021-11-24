@@ -117,7 +117,7 @@
 			<Button variant="outlined" disabled>
 				<Label>ถูกต้อง!</Label>
 			</Button>
-			<RatingButton anchor={"BOTTOM_LEFT"} puzzleId={puzzleId} round={2} on:submitRates={submitRates}/>
+			<RatingButton anchor={"BOTTOM_LEFT"} puzzleId={puzzleId} round={1} on:submitRates={submitRates}/>
 		{:else}
 			<Button on:click={() => submit()} variant="raised">
 				<Label>ส่งคำตอบ</Label>

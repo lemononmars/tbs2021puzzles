@@ -142,8 +142,8 @@ function toPuzzleIndex(round, id){
 }
 
 function clearTables(){
-	client.query(`DELETE FROM leaderboard1`)
-	client.query(`DELETE FROM leaderboard2`)
+	//client.query(`DELETE FROM leaderboard1`)
+	//client.query(`DELETE FROM leaderboard2`)
 	client.query(`DELETE FROM answerlog`)
 }
 
@@ -163,6 +163,7 @@ function createTables(){
 
 function saveLogs(){
 	client.query(`SELECT * FROM answerlog`, (err, result) =>{
+		console.log(result.rows)
 		if(err) throw err;
 		fs.writeFile("answerlog.txt", JSON.stringify(result.rows), function(err) {
 			if (err) {

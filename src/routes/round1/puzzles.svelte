@@ -153,8 +153,8 @@
 	  
 		<AppContent class="app-content">
 			<main class="main-content">
-				<div class="card-display">
-				<Card>
+				<div class="card-container">
+				<Card style="width:auto">
 					{#if activePuzzle > 0}
 						<span class='flex-row'>
 							<img src={iconurls[activePuzzle]} alt = 'puzzle icon'/>
@@ -175,11 +175,12 @@
 									</Button>
 								{/if}
 						</span>
-						<span>
+						
 						{#if solved[activePuzzle-1]}
-							<RatingButton anchor={"BOTTOM_LEFT"} puzzleId={activePuzzle-1} round={1} on:submitRates={submitRates}/>
-						{/if}
+						<span style="text-align:center">
+							<RatingButton anchor={"BOTTOM_LEFT"} puzzleId={activePuzzle-1} round={0} on:submitRates={submitRates}/>
 						</span>
+						{/if}
 					{/if}
 					{#each sectionTitles as title, i}
 						{#if activeSection >= i}
@@ -233,7 +234,7 @@ escapeKeyAction=""
 	  position: relative;
 	  display: flex;
 	  height: 380px;
-	  width: clamp(400px, 800px, 800px);
+	  width: clamp(400px, 90%, 900px);
 	  border: 1px solid
 		 var(--mdc-theme-text-hint-on-background, rgba(0, 0, 0, 0.1));
 	  overflow: hidden;
@@ -245,5 +246,9 @@ escapeKeyAction=""
     padding: 10px;
     height: 100%;
     box-sizing: border-box;
+  }
+
+  .card-container{
+	  max-width:100%
   }
 </style>

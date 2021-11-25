@@ -53,17 +53,15 @@
 				answer = answer.trim().toUpperCase()
 				$store.round2answers[puzzleId] = answer
 				solved = true
-				snackbarLabel = 'ถูกต้อง!'
 			}	
-			else{
-				snackbarLabel = 'ยังไม่ถูก'
-			}
+			snackbarLabel = res.message
 			snackbarWithClose.open()
 		})
 	}
 
 	function submitRates(event){
 		socket.emit('submit rating', event.detail)
+		$store.round2rate[event.detail.puzzleId] = true
 		snackbarLabel = 'ขอบคุณสำหรับคะแนนครับ'
 		snackbarWithClose.open()
 	}
@@ -117,7 +115,9 @@
 			<Button variant="outlined" disabled>
 				<Label>ถูกต้อง!</Label>
 			</Button>
-			<RatingButton anchor={"BOTTOM_LEFT"} puzzleId={puzzleId} round={1} on:submitRates={submitRates}/>
+			{#if !$store.round2rate[puzzleId]}
+				<RatingButton anchor={"BOTTOM_LEFT"} puzzleId={puzzleId} round={1} on:submitRates={submitRates}/>
+			{/if}
 		{:else}
 			<Button on:click={() => submit()} variant="raised">
 				<Label>ส่งคำตอบ</Label>

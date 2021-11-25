@@ -20,7 +20,7 @@
 </script>
 
 <main style='text-align:center'>
-<img src="./favicon.png/" alt="Thailand Board Game Show logo"/><br/>
+<img src="./logo-512.png/" alt="Thailand Board Game Show logo"/><br/>
 {#if loaded}
 	<span style='display:flex; justify-content:space-evenly; align-items:flex-start'>
 	{#each tables as table, i}

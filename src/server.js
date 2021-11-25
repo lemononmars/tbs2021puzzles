@@ -5,8 +5,10 @@ import http from 'http';
 import polka from 'polka';
 import sirv from 'sirv';
 import socketIo from 'socket.io';
-import {WebhookClient} from 'discord.js' 
-import {herokuDB, webhookId, webhookToken, solution} from "./config.json";
+
+import { Client } from 'pg';
+import { WebhookClient } from 'discord.js' 
+import {herokuDB, webhookId, webhookToken, solution, keepGoing} from "./config.json";
 const webhook = new WebhookClient({id: webhookId, token:webhookToken})
 
 const { PORT, NODE_ENV } = process.env;
@@ -34,7 +36,6 @@ const io = socketIo(server, {
 });
 
 // heroku postgres sql
-import { Client } from 'pg';
 process.env.DATABASE_URL = herokuDB
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -46,9 +47,10 @@ const client = new Client({
 client.connect(function(err){
 	if (err) throw err;
 	//add command to be execute once
-	//clearLeaderboards()
 	//resetLogs()
 	//saveLogs()
+	//resetLeaderboards()
+	//populateLeaderboards()
 });
 
 io.on('connection', function(socket){
@@ -57,7 +59,7 @@ io.on('connection', function(socket){
 		var returnResult = {
 			isCorrect: false, 
 			isFinished: false,
-			hintMessage: ''
+			message: ''
 		}
 
 		if(!data || !data.answer) {
@@ -66,13 +68,18 @@ io.on('connection', function(socket){
 		}
 
 		const cleanAnswer = encodeURI(data.answer.trim().toUpperCase())
-		const isCorrect = solution[data.round][data.id] === cleanAnswer 
+		const sol = solution[data.round][data.id]
+		const isCorrect = cleanAnswer === sol
 		returnResult.isCorrect = isCorrect
-		const column = isCorrect? 'correct':'incorrect' // for logging
-		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1} - ${data.alias} > ${isCorrect? ':white_check_mark:':':x:' + cleanAnswer}`
+		returnResult.message = isCorrect? 'ถูกต้อง!✔️': submissionResponse(cleanAnswer, sol)
 
+		// for discord webhook
+		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1} - ${data.alias} > ${isCorrect? ':white_check_mark:':':x:' + cleanAnswer}`
 		webhook.send(messageString)
-		client.query(`UPDATE answerlog SET ${column} = ${column} + 1 WHERE (round = ${data.round} AND id = ${data.id})`, (err)=>{
+
+		// db record
+		const dbColumn = isCorrect? 'correct':'incorrect' // for logging
+		client.query(`UPDATE answerlog SET ${dbColumn} = ${dbColumn} + 1 WHERE (round = ${data.round} AND id = ${data.id})`, (err)=>{
 			if(err) throw err
 		})
 		
@@ -95,17 +102,19 @@ io.on('connection', function(socket){
 		data.email = encodeURI(data.email)
 		res.success = true
 		const d = new Date()
-		var timeString = d.toLocaleString('th-TH', { timeZone: 'UTC' })
-		let queryString = `INSERT INTO leaderboard${data.round+1} VALUES ('${data.user}', '${data.email}','${timeString}')`
-		client.query(queryString, (err, result) => {
+		var timeString = d.toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })
+		let queryString = `INSERT INTO leaderboard${data.round+1} VALUES ('${data.user}', '${data.email}','${timeString}', '${data.timeTotal}')`
+
+		client.query(queryString, (err) => {
 			if (err) throw err
 		})
 
+		// query to get ranking... is there a way to get this info from INSERT ?
 		client.query(`SELECT name FROM leaderboard${data.round+1}`, (err, result) => {
 			if(err) throw err
 			res.ranking = result.rows.length
 
-			webhook.send(`${data.user} Round ${data.round+1} ${data.round===1? ':trophy:':':trophy::trophy:'} Rank ${res.ranking}`)
+			webhook.send(`${data.user} (aka ${data.alias}) Round ${data.round+1} ${data.round===1? ':trophy:':':trophy::trophy:'} Rank ${res.ranking}`)
 			callback(res)
 		})
 	})
@@ -136,9 +145,43 @@ io.on('connection', function(socket){
 	})
 })
 
-function clearLeaderboards(){
+function submissionResponse(ans, sol){
+	const found = keepGoing.find((e) => e[0] === ans)
+	if (found)
+		return '⚠️' + found[1]
+		
+	// return false if lengths don't match
+	if (ans.length != sol.length)
+		return 'ยังไม่ถูก ❌'
+
+	// then, check if it's off by one letter
+	var count = 0
+	for(var i in sol)
+		count += ans[i] === sol[i]? 1:0
+
+	if (count == sol.length - 1)
+		return '⚠️ ผิดตัวอักษรเดียว ตรวจคำตอบอีกที'
+	else
+		return 'ยังไม่ถูก ❌'
+}
+
+function resetLeaderboards(){
 	client.query(`DELETE FROM leaderboard1`)
 	client.query(`DELETE FROM leaderboard2`)
+}
+
+function reconstructLeaderboards(){
+	client.query(`DROP TABLE leaderboard1`)
+	client.query(`DROP TABLE leaderboard2`)
+	client.query(`CREATE TABLE leaderboard1 (name VARCHAR(255), email VARCHAR(255), time VARCHAR(255), timeTotal NUMERIC)`)
+	client.query(`CREATE TABLE leaderboard2 (name VARCHAR(255), email VARCHAR(255), time VARCHAR(255), timeTotal NUMERIC)`)
+}
+
+function populateLeaderboards(){
+	client.query("INSERT INTO leaderboard1 VALUES ('Nakpaiya', 'kaveewat.roj@gmail.com','23/11/2564 22:18:29','0')")
+	client.query("INSERT INTO leaderboard1 VALUES ('NUTLAI', 'nut_lai@hotmail.com','23/11/2564 23:36:45','0')")
+	client.query("INSERT INTO leaderboard2 VALUES ('Nakpaiya', 'kaveewat.roj@gmail.com','23/11/2564 22:28:30','0')")
+	client.query("INSERT INTO leaderboard2 VALUES ('NUTLAI', 'nut_lai@hotmail.com','24/11/2564 00:58:28','0')")
 }
 
 function resetLogs(){
@@ -164,9 +207,18 @@ function saveLogs(){
 	  	});
 	})
 
+	client.query(`SELECT * FROM leaderboard1`, (err, result) =>{
+		if(err) throw err;
+		fs.writeFile("winnerlist1.txt", JSON.stringify(result.rows), function(err) {
+			if (err) {
+				 console.log(err);
+			}
+	  	});
+	})
+
 	client.query(`SELECT * FROM leaderboard2`, (err, result) =>{
 		if(err) throw err;
-		fs.writeFile("winnerlist.txt", JSON.stringify(result.rows), function(err) {
+		fs.writeFile("winnerlist2.txt", JSON.stringify(result.rows), function(err) {
 			if (err) {
 				 console.log(err);
 			}

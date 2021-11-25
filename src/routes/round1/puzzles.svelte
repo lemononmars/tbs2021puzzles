@@ -13,7 +13,7 @@
 	let snackbarLabel = ''
 
 	import RatingButton from '../../components/RatingButton.svelte'
-	import {store} from '../../stores/save'
+	import {store, currentTime} from '../../stores/save'
 	import {onMount} from 'svelte'
 	import io from 'socket.io-client';
 	const socket = io()
@@ -32,10 +32,10 @@
 		const res = await fetch(`./round1/puzzleicon1.png`) //there should be a better way....
 	})
 
-	let activePuzzle = 0
+	let activeDrawer = 0
+	$: activePuzzle = activeDrawer-1
 	let activeSection = 0
-	const iconurls = [0,0,1,2,3,4,5].map(x => `./round1/puzzleicon${x+1}.png`)
-
+	const iconurls = [0,1,2,3,4,5].map(x => `./round1/puzzleicon${x+1}.png`)
 	const sectionTitles = ['วิธีหาข้อมูล', 'วิธีแก้ปริศนา', 'วิธีอ่านคำตอบ']
 
 	var puzzleTitles = [0,1,2,3,4].map(x => `ปริศนาข้อที่ ${x+1}`)
@@ -80,6 +80,10 @@
 	]
 
 	let ranking = -1
+	let user = ''
+	let timeTotal = 0
+	let timeTotalString = ''
+	
 	function submit(id: number){
 		var submission = {round: 0, id:id, answer: answers[id], alias: $store.alias}
 		socket.emit('submit answer', submission, function(res){
@@ -87,25 +91,37 @@
 				answers[id] = answers[id].trim().toUpperCase()
 				$store.round1answers[id] = answers[id]
 				solved[id] = true
-				snackbarLabel = 'ถูกต้อง!✔️'
-				if(res.isFinished){
+				if(res.isFinished) {
 					dialogOpen = true
+					timeTotal =  $currentTime.getTime() - $store.timeStarted
+					timeTotalString = `${Math.floor(timeTotal / 60000)} นาที ${Math.floor((timeTotal % 60000)/1000)} วินาที`
 				}
 			}	
-			else{
-				snackbarLabel = 'ยังไม่ถูก❌'
-			}
+			snackbarLabel = res.message
 			snackbarWithClose.open()
 		})
 	}
 
-	let user = ''
 	function submitFinal(){
-		var submission = {round:0, answer: answers[5], user: user, email: 'none'} //submit final answer one more time
+		if($store.round1final){
+			snackbarLabel = `คุณเคยส่งชื่อแล้ว!!!`
+			snackbarWithClose.open()
+			return
+		}
+
+		var submission = {
+			round:0, 
+			answer: answers[5], 
+			alias: $store.alias,
+			user: user, 
+			email: 'none',
+			timeTotal: timeTotal
+		} //submit final answer one more time
 		socket.emit('add to leaderboard', submission, function(res){
 			if(res.success) {
 				dialogOpen = false
 				ranking = res.ranking
+				$store.round1final = true
 				snackbarLabel = `บันทึกข้อมูลแล้ว คุณได้ลำดับที่ ${ranking}`
 				snackbarWithClose.open()
 			}
@@ -118,6 +134,7 @@
 
 	function submitRates(event){
 		socket.emit('submit rating', event.detail)
+		$store.round1rate[event.detail.puzzleId] = true
 		snackbarLabel = 'ขอบคุณสำหรับคะแนนครับ'
 		snackbarWithClose.open()
 	}
@@ -127,7 +144,7 @@
 			submit(answers.indexOf(e.target.value));
   	};
 	function setActive(act: number){
-		activePuzzle = act
+		activeDrawer = act
 		activeSection = 0
 	}
 </script>
@@ -142,7 +159,7 @@
 				<Item
 				  href="javascript:void(0)"
 				  on:click={() => setActive(id)}
-				  activated={activePuzzle === id}
+				  activated={activeDrawer === id}
 				>
 					<Text>{puzzleTitles[id]}</Text>
 				</Item>
@@ -155,31 +172,31 @@
 			<div class="main-content">
 				<div class="card-container">
 				<Card>
-					{#if activePuzzle > 0}
+					{#if activeDrawer > 0}
 						<span class='flex-row'>
 							<img src={iconurls[activePuzzle]} alt = 'puzzle icon'/>
 							<Textfield 
 								variant="outlined" 
 								style='max-width: 100px'
-								bind:value={answers[activePuzzle-1]} 
+								bind:value={answers[activePuzzle]} 
 								on:keydown={keyPressed} 
-								disabled={solved[activePuzzle-1]}
+								disabled={solved[activePuzzle]}
 							/>
-								{#if solved[activePuzzle-1]}
+								{#if solved[activePuzzle]}
 									<Button variant="outlined" disabled>
 										<Label>ถูกต้อง!</Label>
 									</Button>
 								{:else}
-									<Button on:click={() => submit(activePuzzle-1)} variant="raised">
+									<Button on:click={() => submit(activePuzzle)} variant="raised">
 										<Label>ส่งคำตอบ</Label>
 									</Button>
 								{/if}
 						</span>
 						
-						{#if solved[activePuzzle-1]}
-						<span style="text-align:center">
-							<RatingButton anchor={"BOTTOM_LEFT"} puzzleId={activePuzzle-1} round={0} on:submitRates={submitRates}/>
-						</span>
+						{#if solved[activePuzzle] && !$store.round1rate[activePuzzle]}
+							<span style="text-align:center">
+								<RatingButton anchor={"BOTTOM_LEFT"} puzzleId={activePuzzle} round={0} on:submitRates={submitRates}/>
+							</span>
 						{/if}
 					{/if}
 					{#each sectionTitles as title, i}
@@ -192,7 +209,7 @@
 						</Actions>
 						{/if}
 						{#if activeSection > i}
-						<Content>{@html puzzles[activePuzzle][i]}</Content>
+						<Content>{@html puzzles[activeDrawer][i]}</Content>
 						{/if}
 					{/each}
 				</Card>
@@ -214,11 +231,12 @@ bind:open={dialogOpen} aria-labelledby="simple-title" aria-describedby="simple-c
 scrimClickAction=""
 escapeKeyAction=""
 >
-	<Title id="simple-title">🎉ขอแสดงความยินดีด้วย🎉</Title>
+	<Title id="simple-title">🎉ขอแสดงความยินดี🎉</Title>
 	<Content id="simple-content">
 		<div>
-			นำคำตอบ {answers[5]} ไปใส่ในประตู เพื่อไปด่านต่อไป<br><br>
-			ใส่ชื่อเพื่อแสดงในตารางอันดับ<br>
+			คุณใช้เวลาทั้งสิ้น {timeTotalString} <br><br>
+			นำคำตอบ {answers[5]} ไปใส่ในประตูในงาน เพื่อไปด่านต่อไป<br><br>
+			โปรดใส่ชื่อเพื่อแสดงในตารางอันดับ<br>
 			<Textfield variant="outlined" label="ชื่อ" bind:value={user}/><br/>
 		</div>
 		<Actions>
@@ -233,11 +251,11 @@ escapeKeyAction=""
 	.drawer-container {
 	  position: relative;
 	  display: flex;
-	  height: 380px;
+	  height: 600px;
 	  width: clamp(400px, 90%, 900px);
 	  border: 1px solid
 		 var(--mdc-theme-text-hint-on-background, rgba(0, 0, 0, 0.1));
-	  overflow: hidden;
+	  overflow: auto;
 	  z-index: 0;
 	}
 

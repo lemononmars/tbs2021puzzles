@@ -24,9 +24,9 @@
 	let loaded = false
 	let timeStarted = 0
 	let waitTime = 1200000 // 20 minutes = 1200000
-	$: timeLeft = waitTime - $currentTime.getTime() + timeStarted
-	$: timeMinuteString = timeLeft < 0 || Math.floor(timeLeft / 60000) === 0? '':`${Math.floor(timeLeft / 60000)} นาที`
-	$: timeLeftString = timeLeft < 0? '0': `${timeMinuteString} ${Math.floor((timeLeft % 60000)/1000)} วินาที`
+	$: timeLeft = Math.max(waitTime - $currentTime.getTime() + timeStarted, 0)
+	$: timeMinuteString = timeLeft <= 0 || Math.floor(timeLeft / 60000) === 0? '':`${Math.floor(timeLeft / 60000)} นาที`
+	$: timeLeftString = timeLeft <= 0? '0': `${timeMinuteString} ${Math.floor((timeLeft % 60000)/1000)} วินาที`
 
 	onMount(async() => {
 		store.useLocalStorage()
@@ -122,7 +122,7 @@
 			<Button on:click={() => submit()} variant="raised">
 				<Label>ส่งคำตอบ</Label>
 			</Button>
-			{#if timeLeft < 0}
+			{#if timeLeft <= 0}
 				<Button on:click={() => revealHint()} variant="raised" color="secondary">
 					<Label>ขอคำใบ้</Label>
 				</Button>

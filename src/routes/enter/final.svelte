@@ -46,8 +46,9 @@
 				answers[id] = answers[id].trim().toUpperCase()
 				$store.round2answers[id] = answers[id]
 				solved[id] = true
-				if (res.isFinished)
+				if (res.isFinished) {
 					goto(`/enter/${answers[id]}/`)
+				}
 			}	
 			snackbarLabel = res.message
 			snackbarWithClose.open()
@@ -107,7 +108,7 @@
 					<Label>ถูกต้อง</Label>
 				</Button>
 			{/if}
-			{#if timeLeft < 0}
+			{#if timeLeft <= 0}
 				<Button on:click={() => revealHint()} variant="raised" color="secondary">
 					<Label>ขอคำใบ้</Label>
 				</Button>

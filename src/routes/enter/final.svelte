@@ -47,7 +47,10 @@
 				$store.round2answers[id] = answers[id]
 				solved[id] = true
 				if (res.isFinished) {
-					goto(`/enter/${answers[id]}/`)
+					// redirect to a new page with 2 seconds cooldown
+					setTimeout(()=>{
+						goto(`/enter/${answers[id]}/`)
+					}, 2000)
 				}
 			}	
 			snackbarLabel = res.message

@@ -170,18 +170,6 @@ function submissionResponse(ans, sol){
 		return 'ยังไม่ถูก ❌'
 }
 
-function resetLeaderboards(){
-	client.query(`DELETE FROM leaderboard1`)
-	client.query(`DELETE FROM leaderboard2`)
-}
-
-function reconstructLeaderboards(){
-	client.query(`DROP TABLE leaderboard1`)
-	client.query(`DROP TABLE leaderboard2`)
-	client.query(`CREATE TABLE leaderboard1 (name VARCHAR(255), email VARCHAR(255), time VARCHAR(255), timeTotal NUMERIC)`)
-	client.query(`CREATE TABLE leaderboard2 (name VARCHAR(255), email VARCHAR(255), time VARCHAR(255), timeTotal NUMERIC)`)
-}
-
 function populateLeaderboards(){
 	client.query("INSERT INTO leaderboard1 VALUES ('Nakpaiya', 'kaveewat.roj@gmail.com','23/11/2564 22:18:29','0')")
 	client.query("INSERT INTO leaderboard1 VALUES ('NUTLAI', 'nut_lai@hotmail.com','23/11/2564 23:36:45','0')")

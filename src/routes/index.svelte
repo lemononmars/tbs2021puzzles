@@ -58,7 +58,7 @@
 				{#each table as row, i}
 				<Row>
 					<Cell>{i+1}</Cell>
-					<Cell>{row.name}</Cell>
+					<Cell>{decodeURI(row.name)}</Cell>
 					<Cell>{row.time}</Cell>
 				</Row>
 				{/each}

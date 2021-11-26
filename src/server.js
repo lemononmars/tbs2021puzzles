@@ -146,8 +146,7 @@ io.on('connection', function(socket){
 	})
 
 	socket.on('submit impression', (data)=>{
-		webhook.send('Final comment:')
-		webhook.send(data)
+		webhook.send(`Final comment: ${data}`)
 	})
 })
 

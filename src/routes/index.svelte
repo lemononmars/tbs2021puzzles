@@ -7,14 +7,19 @@
    var loaded = false;
 	const socket = io()
 
+	var numActivePlayers = 0
+
    onMount(async() => {
 		socket.emit('get leaderboard', 1, function(result){
-			tables[0] = result
+			tables[0] = result.sort((a,b)=> {return a.time.localeCompare(b.time)})
          loaded = true
 		})
 		socket.emit('get leaderboard', 2, function(result){
-			tables[1] = result
+			tables[1] = result.sort((a,b)=> {return a.time.localeCompare(b.time)})
          loaded = true
+		})
+		socket.emit('get number active players', '', function(num){
+			numActivePlayers = num
 		})
 	})
 </script>
@@ -22,6 +27,8 @@
 <main style='text-align:center'>
 <img src="./logo-192.png/" alt="Thailand Board Game Show logo"/><br/>
 {#if loaded}
+	<span>ขณะนี้มีคนเล่นทั้งหมด {numActivePlayers} คน </span><br>
+	<span>ถ้าหาชื่อของตัวเองไม่เจอ กรุณาติดต่อ codebreakerth (at) gmail.com</span>
 	<span style='display:flex; justify-content:space-evenly; align-items:flex-start'>
 	{#each tables as table, i}
 		<div>

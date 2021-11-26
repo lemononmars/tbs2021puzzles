@@ -55,6 +55,10 @@ client.connect(function(err){
 
 io.on('connection', function(socket){
 
+	socket.on('get number active players', (data, callback)=>{
+		callback(io.engine.clientsCount)
+	})
+
 	socket.on('submit answer', (data, callback) =>{
 		var returnResult = {
 			isCorrect: false, 

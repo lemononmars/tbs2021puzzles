@@ -48,12 +48,14 @@ client.connect(function(err){
 	if (err) throw err;
 	//add command to be execute once
 	//resetLogs()
-	//saveLogs()
+	saveLogs()
 	//resetLeaderboards()
 	//populateLeaderboards()
 });
 
 io.on('connection', function(socket){
+
+	// discordPurge() // later...
 
 	socket.on('get number active players', (data, callback)=>{
 		callback(io.engine.clientsCount)
@@ -71,7 +73,7 @@ io.on('connection', function(socket){
 			return;
 		}
 
-		const cleanAnswer = encodeURI(data.answer.trim().toUpperCase())
+		const cleanAnswer = encodeURI(data.answer.split(' ').join('').toUpperCase())
 		const sol = solution[data.round][data.id]
 		const isCorrect = cleanAnswer === sol
 		returnResult.isCorrect = isCorrect
@@ -228,4 +230,14 @@ function saveLogs(){
 			}
 	  	});
 	})
+}
+
+function discordPurge(){
+	const channel = new Discord.Client()
+	channel.fetchMessages({ limit: 100 })
+  .then(fetchedMessages => {
+    const messagesToDelete = fetchedMessages.filter(msg => (msg.content.includes('frosty_mountain')));
+    return channel.bulkDelete(messagesToDelete, true);
+  })
+  .then(deletedMessages => channel.send(`Deleted **${deletedMessages.size}**`))
 }

@@ -1,5 +1,4 @@
 <script>
-  //export let segment
 	import Tab, {Label} from '@smui/tab';
   import TabBar from '@smui/tab-bar';
  

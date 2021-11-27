@@ -17,7 +17,7 @@
 	$: selectedIndex = dateStringList.indexOf(selected)
 	$: currentTables = getCurrentTables(selectedIndex)
 
-	function getCurrentTables(c){
+	function getCurrentTables(c: number){
 		if(!currentTables)
 			return [[],[]]
 
@@ -43,6 +43,9 @@
 			tables[1] = result.sort((a,b)=> {return a.time.localeCompare(b.time)})
 			loaded = true
 			currentTables = getCurrentTables(selectedIndex)
+		})
+		socket.emit('get number active players', '', function(res){
+			numActivePlayers = res
 		})
 	})
 </script>

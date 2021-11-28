@@ -48,7 +48,7 @@ client.connect(function(err){
 	if (err) throw err;
 	//add command to be execute once
 	//resetLogs()
-	saveLogs()
+	//saveLogs()
 	//resetLeaderboards()
 	//populateLeaderboards()
 });

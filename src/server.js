@@ -55,10 +55,6 @@ client.connect(function(err){
 
 io.on('connection', function(socket){
 
-	socket.on('get number active players', (data, callback)=>{
-		callback(io.engine.clientsCount)
-	})
-
 	socket.on('submit answer', (data, callback) =>{
 		var returnResult = {
 			isCorrect: false, 
@@ -166,25 +162,6 @@ function submissionResponse(ans, sol){
 		return '⚠️ ผิดตัวอักษรเดียว ตรวจคำตอบอีกที'
 	else
 		return 'ยังไม่ถูก ❌'
-}
-
-function populateLeaderboards(){
-	client.query("INSERT INTO leaderboard1 VALUES ('Nakpaiya', 'kaveewat.roj@gmail.com','23/11/2564 22:18:29','0')")
-	client.query("INSERT INTO leaderboard1 VALUES ('NUTLAI', 'nut_lai@hotmail.com','23/11/2564 23:36:45','0')")
-	client.query("INSERT INTO leaderboard2 VALUES ('Nakpaiya', 'kaveewat.roj@gmail.com','23/11/2564 22:28:30','0')")
-	client.query("INSERT INTO leaderboard2 VALUES ('NUTLAI', 'nut_lai@hotmail.com','24/11/2564 00:58:28','0')")
-}
-
-function resetLogs(){
-	client.query(`DROP TABLE answerlog`)
-	client.query(`CREATE TABLE answerlog (round NUMERIC, id NUMERIC, correct NUMERIC, incorrect NUMERIC, fun NUMERIC, difficulty NUMERIC, num NUMERIC)`)
-
-	const NUM_PUZZ_ROUND_1 = 6
-	const NUM_PUZZ_ROUND_2 = 5
-	for(var i = 0; i < NUM_PUZZ_ROUND_1; i ++)
-		client.query(`INSERT INTO answerlog VALUES ('0', '${i}', '0','0', '0', '0', '0')`)
-	for(var i = 0; i < NUM_PUZZ_ROUND_2; i ++)
-		client.query(`INSERT INTO answerlog VALUES ('1', '${i}', '0','0', '0', '0', '0')`)
 }
 
 function saveLogs(){

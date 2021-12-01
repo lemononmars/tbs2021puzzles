@@ -57,6 +57,7 @@
     "@smui/tooltip": "^5.0.0",
     "@tsconfig/svelte": "^2.0.1",
     "autoprefixer": "^10.4.0",
+    "chart.js": "^3.6.0",
     "events": "^3.3.0",
     "postcss": "^8.3.11",
     "postcss-load-config": "^3.1.0",

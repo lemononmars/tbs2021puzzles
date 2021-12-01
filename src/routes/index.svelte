@@ -10,7 +10,6 @@
    var loaded = false;
 	const socket = io()
 
-	var numActivePlayers = 0
 	var dateStringList = ["วันศุกร์", "วันเสาร์", "วันอาทิตย์", "วันอื่น"]
 	var dateDigitList = [6,7,8]
 	var selected = "วันเสาร์"
@@ -44,17 +43,11 @@
 			loaded = true
 			currentTables = getCurrentTables(selectedIndex)
 		})
-		socket.emit('get number active players', '', function(res){
-			numActivePlayers = res
-		})
 	})
 </script>
 <main style='text-align:center'>
 <img src="./logo-192.png/" alt="Thailand Board Game Show logo"/><br/>
 {#if loaded}
-	<span>ขณะนี้มีคนเล่นทั้งหมด {numActivePlayers} คน </span><br>
-	<span>ถ้าแก้ปริศนาเสร็คแต่หาชื่อของตัวเองไม่เจอ กรุณาติดต่อ codebreakerth (at) gmail.com</span><br>
-
 	<SegmentedButton segments={dateStringList} let:segment singleSelect bind:selected>
 		<Segment {segment}>
 		  <Label>{segment}</Label>

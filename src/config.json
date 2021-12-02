@@ -1,7 +1,4 @@
 {
-   "herokuDB": "postgres://dozphbaclsjpzh:75fc623b54e01dd23610b4184c1c149a7c84377cd27a31bb4d583738cb6bcfb5@ec2-35-168-65-132.compute-1.amazonaws.com:5432/d3bo1faurltsbj",
-   "webhookId": "911104190355488839",
-   "webhookToken": "V8NQLv72Sv8md1vtcka1C-ivBEus_ztNm0GlMv__Xbpy7t9PdfEDIAk3o6-FOLitIr-L",
    "solution": [
 		["READS","UNDER","CELLS","TAKEN","TWICE","ENTER"],
 		["SKIP", "ROLL", "DRAW", "PICK", "PRIZE"]

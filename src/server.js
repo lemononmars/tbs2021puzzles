@@ -8,10 +8,10 @@ import socketIo from 'socket.io';
 
 import { Client } from 'pg';
 import { WebhookClient } from 'discord.js' 
-import {herokuDB, webhookId, webhookToken, solution, keepGoing} from "./config.json";
-const webhook = new WebhookClient({id: webhookId, token:webhookToken})
+import {solution, keepGoing} from "./config.json";
 
-const { PORT, NODE_ENV } = process.env;
+const { PORT, NODE_ENV, webhookId, webhookToken } = process.env;
+const webhook = new WebhookClient({id: webhookId, token:webhookToken})
 const dev = NODE_ENV === 'development';
 const server = http.createServer();
  
@@ -36,7 +36,6 @@ const io = socketIo(server, {
 });
 
 // heroku postgres sql
-process.env.DATABASE_URL = herokuDB
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -49,8 +48,6 @@ client.connect(function(err){
 	//add command to be execute once
 	//resetLogs()
 	//saveLogs()
-	//resetLeaderboards()
-	//populateLeaderboards()
 });
 
 io.on('connection', function(socket){
@@ -192,14 +189,4 @@ function saveLogs(){
 			}
 	  	});
 	})
-}
-
-function discordPurge(){
-	const channel = new Discord.Client()
-	channel.fetchMessages({ limit: 100 })
-  .then(fetchedMessages => {
-    const messagesToDelete = fetchedMessages.filter(msg => (msg.content.includes('frosty_mountain')));
-    return channel.bulkDelete(messagesToDelete, true);
-  })
-  .then(deletedMessages => channel.send(`Deleted **${deletedMessages.size}**`))
 }

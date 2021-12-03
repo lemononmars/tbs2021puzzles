@@ -7,4 +7,4 @@ Players navigate in gather.town to find clues and use them to solve puzzles. Due
 ## Versions
 The main branch is a server version, hosted on herokuapp. Please don't expect it to stay forever.
 
-The gh-pages branch is a static build, hosted on GitHub Pages. You can start playing [now!](lemononmars.github.io/tbs2021puzzles/)
+The gh-pages branch is a static build, hosted on GitHub Pages. You can start playing [now!](https://lemononmars.github.io/tbs2021puzzles/)

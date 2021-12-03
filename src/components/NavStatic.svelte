@@ -4,23 +4,23 @@
  
   let tabs = [
     {
-      href: '/home',
+      href: './home',
       label: 'หน้าแรก',
 	 },
 	 {
-      href: '/round1puzzles',
+      href: './round1puzzles',
       label: 'ปริศนาด่านที่ 1',
 	 },
    {
-      href: '/round2puzzles',
+      href: './round2puzzles',
       label: 'ปริศนาด่านที่ 2',
 	 },
    {
-      href: '/leaderboard',
+      href: './leaderboard',
       label: 'ตารางอันดับ',
 	 },
 	 {
-      href: '/wrapup',
+      href: './wrapup',
       label: 'สรุปงาน',
 	 },
   ];

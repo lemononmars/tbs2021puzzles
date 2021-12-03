@@ -7,16 +7,19 @@ import sirv from 'sirv';
 import socketIo from 'socket.io';
 
 import { Client } from 'pg';
-import { WebhookClient } from 'discord.js' 
-import {solution, keepGoing} from "./config.json";
+//import { WebhookClient } from 'discord.js' 
+import {herokuDB, solution, keepGoing} from "./config.json";
+//import {webhookId, webhookToken} from "./config.json";
 
-const { PORT, NODE_ENV, webhookId, webhookToken } = process.env;
-const webhook = new WebhookClient({id: webhookId, token:webhookToken})
+const { PORT, NODE_ENV} = process.env;
+//const webhook = new WebhookClient({id: webhookId, token:webhookToken})
 const dev = NODE_ENV === 'development';
 const server = http.createServer();
+const baseurl = dev ? '/' : 'tbs2021puzzles'
  
 const app = polka({ server })
 	.use(
+		baseurl,
 		compression({ threshold: 0 }),
 		sirv('static', { dev }),
 		sapper.middleware()
@@ -35,7 +38,9 @@ const io = socketIo(server, {
 	allowEIO3: true
 });
 
+
 // heroku postgres sql
+process.env.DATABASE_URL = herokuDB
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -45,8 +50,6 @@ const client = new Client({
 
 client.connect(function(err){
 	if (err) throw err;
-	//add command to be execute once
-	//resetLogs()
 	//saveLogs()
 });
 
@@ -70,6 +73,7 @@ io.on('connection', function(socket){
 		returnResult.isCorrect = isCorrect
 		returnResult.message = isCorrect? 'ถูกต้อง!✔️': submissionResponse(cleanAnswer, sol)
 
+		/*
 		// for discord webhook
 		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1} - ${data.alias} > ${isCorrect? ':white_check_mark:':':x:' + cleanAnswer}`
 		webhook.send(messageString)
@@ -78,7 +82,7 @@ io.on('connection', function(socket){
 		const dbColumn = isCorrect? 'correct':'incorrect' // for logging
 		client.query(`UPDATE answerlog SET ${dbColumn} = ${dbColumn} + 1 WHERE (round = ${data.round} AND id = ${data.id})`, (err)=>{
 			if(err) throw err
-		})
+		})*/
 		
 		if (isCorrect)
 			if((data.round == 0 && data.id == 5) || (data.round == 1 && data.id == 4))
@@ -130,15 +134,17 @@ io.on('connection', function(socket){
 		 })
 	})
 
+	
 	socket.on('submit rating', (data)=>{
 		client.query(`UPDATE answerlog SET fun = fun + ${data.rates[0]}, difficulty = difficulty + ${data.rates[1]}, num = num + 1 WHERE (round = ${data.round} AND id = ${data.puzzleId})`, (err)=>{
 			if(err) throw err
 		})
 	})
-
+	
+	/*
 	socket.on('submit impression', (data)=>{
 		webhook.send(`Final comment: ${data}`)
-	})
+	})*/
 })
 
 function submissionResponse(ans, sol){

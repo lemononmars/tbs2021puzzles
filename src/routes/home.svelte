@@ -16,7 +16,7 @@
 
 	ถ้ามีข้อสงสัยหรือข้อแนะนำ กรุณาติดต่อ codebreakerth (at) gmail.com
 
-	<Button href='/round1puzzles'>
+	<Button href='./round1puzzles'>
 		<Label>เริ่มเลย!</Label>
 	</Button>
 </div>

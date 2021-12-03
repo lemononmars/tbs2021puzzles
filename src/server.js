@@ -72,6 +72,7 @@ io.on('connection', function(socket){
 		returnResult.isCorrect = isCorrect
 		returnResult.message = isCorrect? 'ถูกต้อง!✔️': submissionResponse(cleanAnswer, sol)
 
+		/*
 		// for discord webhook
 		const messageString = `Round ${data.round+1} Puzzle ${data.id + 1} - ${data.alias} > ${isCorrect? ':white_check_mark:':':x:' + cleanAnswer}`
 		webhook.send(messageString)
@@ -81,6 +82,7 @@ io.on('connection', function(socket){
 		client.query(`UPDATE answerlog SET ${dbColumn} = ${dbColumn} + 1 WHERE (round = ${data.round} AND id = ${data.id})`, (err)=>{
 			if(err) throw err
 		})
+		*/
 		
 		if (isCorrect)
 			if((data.round == 0 && data.id == 5) || (data.round == 1 && data.id == 4))
@@ -113,7 +115,7 @@ io.on('connection', function(socket){
 			if(err) throw err
 			res.ranking = result.rows.length
 
-			webhook.send(`${data.user} (aka ${data.alias}) Round ${data.round+1} ${data.round===1? ':trophy:':':trophy::trophy:'} Rank ${res.ranking}`)
+			//webhook.send(`${data.user} (aka ${data.alias}) Round ${data.round+1} ${data.round===1? ':trophy:':':trophy::trophy:'} Rank ${res.ranking}`)
 			callback(res)
 		})
 	})
@@ -138,9 +140,11 @@ io.on('connection', function(socket){
 		})
 	})
 
+	/*
 	socket.on('submit impression', (data)=>{
 		webhook.send(`Final comment: ${data}`)
 	})
+	*/
 })
 
 function submissionResponse(ans, sol){

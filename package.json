@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "sapper dev",
     "build": "sapper build",
-    "export": "sapper export --legacy",
+    "deploy": "npm run export && node ./scripts/gh-pages.js",
+    "export": "sapper export --basepath tbs2021puzzles --legacy ",
     "start": "node __sapper__/build"
   },
   "dependencies": {

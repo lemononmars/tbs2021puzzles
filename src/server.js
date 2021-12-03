@@ -7,16 +7,18 @@ import sirv from 'sirv';
 import socketIo from 'socket.io';
 
 import { Client } from 'pg';
-import { WebhookClient } from 'discord.js' 
+//import { WebhookClient } from 'discord.js' 
 import {solution, keepGoing} from "./config.json";
 
-const { PORT, NODE_ENV, webhookId, webhookToken } = process.env;
-const webhook = new WebhookClient({id: webhookId, token:webhookToken})
+const { PORT, NODE_ENV} = process.env;
+//const webhook = new WebhookClient({id: webhookId, token:webhookToken})
 const dev = NODE_ENV === 'development';
 const server = http.createServer();
+const baseurl = dev ? '/' : '/tbs2021puzzles';
  
 const app = polka({ server })
 	.use(
+		baseurl,
 		compression({ threshold: 0 }),
 		sirv('static', { dev }),
 		sapper.middleware()
